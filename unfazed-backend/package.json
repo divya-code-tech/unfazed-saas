@@ -1,0 +1,14 @@
+{
+  "name": "unfazed-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Unfazed therapist practice management SaaS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}
