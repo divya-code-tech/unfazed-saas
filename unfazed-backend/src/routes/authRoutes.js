@@ -1,3 +1,4 @@
+import authMiddleware from "../middleware/authMiddleware.js";
 import express from "express";
 import {
   registerTherapist,
@@ -13,5 +14,14 @@ router.post("/therapist/login", loginTherapist);
 
 router.post("/client/register", registerClient);
 router.post("/client/login", loginClient);
+
+router.get("/me", authMiddleware, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Authenticated user",
+    user: req.user,
+  });
+});
+
 
 export default router;
