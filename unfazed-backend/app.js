@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import errorHandler from "./src/middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -27,4 +28,5 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.use(errorHandler);
 export default app;
