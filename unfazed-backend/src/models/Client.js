@@ -1,0 +1,88 @@
+import mongoose from "mongoose";
+
+const clientSchema = new mongoose.Schema(
+  {
+    therapist: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Therapist",
+      required: true,
+    },
+
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false,
+    },
+
+    phone: {
+      type: String,
+      trim: true,
+    },
+
+    avatar: {
+      type: String,
+      default: "",
+    },
+
+    dateOfBirth: {
+      type: Date,
+    },
+
+    gender: {
+      type: String,
+      trim: true,
+    },
+
+    languages: {
+      type: [String],
+      default: [],
+    },
+
+    intake: {
+      concerns: {
+        type: String,
+        trim: true,
+      },
+      goals: {
+        type: String,
+        trim: true,
+      },
+      notes: {
+        type: String,
+        trim: true,
+      },
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    lastLoginAt: {
+      type: Date,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+clientSchema.index({ therapist: 1, email: 1 }, { unique: true });
+
+const Client = mongoose.model("Client", clientSchema);
+
+export default Client;
