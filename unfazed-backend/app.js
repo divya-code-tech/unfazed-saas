@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import errorHandler from "./src/middleware/errorHandler.js";
 import authRoutes from "./src/routes/authRoutes.js";
+import clientRoutes from "./src/routes/clientRoutes.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/clients", clientRoutes);
 
 app.use(errorHandler);
 
