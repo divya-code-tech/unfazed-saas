@@ -72,6 +72,11 @@ const clientSchema = new mongoose.Schema(
       default: true,
     },
 
+    mustChangePassword: {
+      type: Boolean,
+      default: false,
+    },
+
     lastLoginAt: {
       type: Date,
     },

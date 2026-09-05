@@ -5,6 +5,7 @@ import {
   loginTherapist,
   registerClient,
   loginClient,
+  changeClientPassword,
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -23,5 +24,10 @@ router.get("/me", authMiddleware, (req, res) => {
   });
 });
 
+router.patch(
+  "/client/change-password",
+  authMiddleware,
+  changeClientPassword
+);
 
 export default router;

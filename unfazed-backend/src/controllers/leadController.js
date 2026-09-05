@@ -1,5 +1,7 @@
+import bcrypt from "bcryptjs";
 import Lead from "../models/Lead.js";
 import Therapist from "../models/Therapist.js";
+import Client from "../models/Client.js";
 
 export const createLead = async (req, res, next) => {
   try {
@@ -164,6 +166,76 @@ export const deleteLead = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Lead deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const convertLeadToClient = async (req, res, next) => {
+  try {
+    const lead = await Lead.findOne({
+      _id: req.params.id,
+      therapist: req.user.id,
+    });
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+
+    if (lead.convertedClient) {
+      return res.status(409).json({
+        success: false,
+        message: "Lead has already been converted to a client",
+      });
+    }
+
+    if (!lead.clientEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Lead must have an email before conversion",
+      });
+    }
+
+    const existingClient = await Client.findOne({
+      therapist: req.user.id,
+      email: lead.clientEmail.toLowerCase(),
+    });
+
+    if (existingClient) {
+      return res.status(409).json({
+        success: false,
+        message: "A client with this email already exists",
+      });
+    }
+
+    const temporaryPassword = `Unfazed@${Date.now()}`;
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+   const client = await Client.create({
+  therapist: req.user.id,
+  name: lead.clientName,
+  email: lead.clientEmail.toLowerCase(),
+  password: hashedPassword,
+  phone: lead.clientPhone,
+  mustChangePassword: true,
+});
+
+    lead.convertedClient = client._id;
+    lead.status = "converted";
+
+    await lead.save();
+
+    const clientResponse = client.toObject();
+    delete clientResponse.password;
+
+    res.status(201).json({
+      success: true,
+      message: "Lead converted to client successfully",
+      client: clientResponse,
     });
   } catch (error) {
     next(error);
