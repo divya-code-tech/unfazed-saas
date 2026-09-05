@@ -10,6 +10,7 @@ import availabilityRoutes from "./src/routes/availabilityRoutes.js";
 import packageRoutes from "./src/routes/packageRoutes.js";
 import clientPackageRoutes from "./src/routes/clientPackageRoutes.js";
 import paymentRoutes from "./src/routes/paymentRoutes.js";
+import leadRoutes from "./src/routes/leadRoutes.js";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/api/availability", availabilityRoutes);
 app.use("/api/packages", packageRoutes);
 app.use("/api/client-packages", clientPackageRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/leads", leadRoutes);
 app.use(errorHandler);
 
 export default app;
