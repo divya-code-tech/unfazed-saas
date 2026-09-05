@@ -125,34 +125,34 @@ export const updateClientPackage = async (req, res, next) => {
       clientPackage.sessionsUsed = sessionsUsed;
     }
 
-    if (status !== undefined) {
-  const allowedStatuses = [
-    "active",
-    "expired",
-    "completed",
-    "cancelled",
-  ];
+  if (status !== undefined) {
+      const allowedStatuses = [
+        "active",
+        "expired",
+        "completed",
+        "cancelled",
+      ];
 
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid client package status",
-    });
-  }
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid client package status",
+        });
+      }
 
-  if (
-    status === "completed" &&
-    clientPackage.sessionsUsed < clientPackage.sessionsPurchased
-  ) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "Client package cannot be completed until all sessions are used",
-    });
-  }
+      if (
+        status === "completed" &&
+        clientPackage.sessionsUsed < clientPackage.sessionsPurchased
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Client package cannot be completed until all sessions are used",
+        });
+      }
 
-  clientPackage.status = status;
-}
+      clientPackage.status = status;
+    }
     
 
     await clientPackage.save();
