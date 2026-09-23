@@ -4,20 +4,42 @@ export const createAvailability = async (req, res, next) => {
   try {
     const {
       dayOfWeek,
+      date,
       startTime,
       endTime,
       timezone,
+      type = "weekly",
       isActive,
     } = req.body;
 
-    if (
-      dayOfWeek === undefined ||
-      !startTime ||
-      !endTime
-    ) {
+    // Validate availability type
+    if (!["weekly", "override", "blocked"].includes(type)) {
       return res.status(400).json({
         success: false,
-        message: "Day, start time and end time are required",
+        message: "Invalid availability type",
+      });
+    }
+
+    // Weekly availability needs a dayOfWeek.
+    if (type === "weekly" && dayOfWeek === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Day of week is required for weekly availability",
+      });
+    }
+
+    // One-time override/blocked availability needs a date.
+    if (type !== "weekly" && !date) {
+      return res.status(400).json({
+        success: false,
+        message: "Date is required for one-time availability",
+      });
+    }
+
+    if (!startTime || !endTime) {
+      return res.status(400).json({
+        success: false,
+        message: "Start time and end time are required",
       });
     }
 
@@ -28,14 +50,24 @@ export const createAvailability = async (req, res, next) => {
       });
     }
 
-    // Check for overlapping availability
-    const overlappingAvailability = await Availability.findOne({
+    // Prevent overlapping records of the same type.
+    const overlapQuery = {
       therapist: req.user.id,
-      dayOfWeek,
+      type,
       isActive: true,
       startTime: { $lt: endTime },
       endTime: { $gt: startTime },
-    });
+    };
+
+    if (type === "weekly") {
+      overlapQuery.dayOfWeek = dayOfWeek;
+    } else {
+      overlapQuery.date = date;
+    }
+
+    const overlappingAvailability = await Availability.findOne(
+      overlapQuery
+    );
 
     if (overlappingAvailability) {
       return res.status(409).json({
@@ -46,10 +78,12 @@ export const createAvailability = async (req, res, next) => {
 
     const availability = await Availability.create({
       therapist: req.user.id,
-      dayOfWeek,
+      dayOfWeek: type === "weekly" ? dayOfWeek : undefined,
+      date: type !== "weekly" ? date : undefined,
       startTime,
       endTime,
       timezone: timezone || "Asia/Kolkata",
+      type,
       isActive: isActive ?? true,
     });
 
@@ -68,7 +102,9 @@ export const getAvailabilities = async (req, res, next) => {
     const availabilities = await Availability.find({
       therapist: req.user.id,
     }).sort({
+      type: 1,
       dayOfWeek: 1,
+      date: 1,
       startTime: 1,
     });
 
@@ -81,9 +117,18 @@ export const getAvailabilities = async (req, res, next) => {
     next(error);
   }
 };
+
 export const updateAvailability = async (req, res, next) => {
   try {
-    const { dayOfWeek, startTime, endTime, timezone, isActive } = req.body;
+    const {
+      dayOfWeek,
+      date,
+      startTime,
+      endTime,
+      timezone,
+      type,
+      isActive,
+    } = req.body;
 
     const availability = await Availability.findOne({
       _id: req.params.id,
@@ -97,8 +142,14 @@ export const updateAvailability = async (req, res, next) => {
       });
     }
 
+    const newType =
+      type !== undefined ? type : availability.type || "weekly";
+
     const newDayOfWeek =
       dayOfWeek !== undefined ? dayOfWeek : availability.dayOfWeek;
+
+    const newDate =
+      date !== undefined ? date : availability.date;
 
     const newStartTime =
       startTime !== undefined ? startTime : availability.startTime;
@@ -113,14 +164,34 @@ export const updateAvailability = async (req, res, next) => {
       });
     }
 
-    const overlappingAvailability = await Availability.findOne({
+    // Build the overlap query according to availability type.
+    const overlapQuery = {
       _id: { $ne: availability._id },
       therapist: req.user.id,
-      dayOfWeek: newDayOfWeek,
       isActive: true,
       startTime: { $lt: newEndTime },
       endTime: { $gt: newStartTime },
-    });
+      type: newType,
+    };
+
+    // Weekly availability overlaps are checked by day.
+    if (newType === "weekly") {
+      overlapQuery.dayOfWeek = newDayOfWeek;
+    }
+
+    // One-time availability overlaps are checked by date.
+    if (newType === "override") {
+      overlapQuery.date = newDate;
+    }
+
+    // Blocked slots are date-specific when a date exists.
+    if (newType === "blocked" && newDate) {
+      overlapQuery.date = newDate;
+    }
+
+    const overlappingAvailability = await Availability.findOne(
+      overlapQuery
+    );
 
     if (overlappingAvailability) {
       return res.status(409).json({
@@ -129,9 +200,17 @@ export const updateAvailability = async (req, res, next) => {
       });
     }
 
-    availability.dayOfWeek = newDayOfWeek;
     availability.startTime = newStartTime;
     availability.endTime = newEndTime;
+    availability.type = newType;
+
+    if (newType === "weekly") {
+      availability.dayOfWeek = newDayOfWeek;
+    }
+
+    if (newType === "override" || newType === "blocked") {
+      availability.date = newDate;
+    }
 
     if (timezone !== undefined) {
       availability.timezone = timezone;

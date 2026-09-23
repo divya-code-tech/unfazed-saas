@@ -55,7 +55,7 @@ export const registerTherapist = async (req, res, next) => {
       phone,
       languages,
       specializations,
-      bookingSlug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
+        slug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
     });
 
     const token = generateToken(therapist._id, "therapist");

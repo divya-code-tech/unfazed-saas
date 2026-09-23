@@ -72,7 +72,7 @@ const therapistSchema = new mongoose.Schema(
       default: "Asia/Kolkata",
     },
 
-    bookingSlug: {
+    slug: {
       type: String,
       unique: true,
       sparse: true,

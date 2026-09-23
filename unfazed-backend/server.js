@@ -1,4 +1,7 @@
+import chatSocket from "./src/sockets/chatSocket.js";
+import { Server } from "socket.io";
 import dotenv from "dotenv";
+import http from "http";
 import app from "./app.js";
 import connectDB from "./src/config/db.js";
 
@@ -10,7 +13,18 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
+    const server = http.createServer(app);
+
+    const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+    chatSocket(io);
+
+    server.listen(PORT, () => {
       console.log(`Unfazed API running on port ${PORT}`);
     });
   } catch (error) {

@@ -20,11 +20,35 @@ const paymentSchema = new mongoose.Schema(
       default: null,
     },
 
+    session: {
+     type: mongoose.Schema.Types.ObjectId,
+     ref: "Session",
+     default: null,
+ },
+
     amount: {
       type: Number,
       required: true,
       min: 0,
     },
+
+  gateway_transaction_id: {
+  type: String,
+  trim: true,
+  default: "",
+},
+
+platform_fee: {
+  type: Number,
+  min: 0,
+  default: 0,
+},
+
+net_amount: {
+  type: Number,
+  min: 0,
+  default: 0,
+},
 
     currency: {
       type: String,

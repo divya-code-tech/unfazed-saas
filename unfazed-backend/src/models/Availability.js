@@ -8,11 +8,18 @@ const availabilitySchema = new mongoose.Schema(
       required: true,
     },
 
+    // Recurring weekly availability uses dayOfWeek.
+    // Date-specific exceptions use date instead.
     dayOfWeek: {
       type: Number,
-      required: true,
       min: 0,
       max: 6,
+    },
+
+    // Used for one-time overrides and blocked periods.
+    date: {
+      type: String,
+      match: /^\d{4}-\d{2}-\d{2}$/,
     },
 
     startTime: {
@@ -32,6 +39,12 @@ const availabilitySchema = new mongoose.Schema(
       default: "Asia/Kolkata",
     },
 
+    type: {
+      type: String,
+      enum: ["weekly", "override", "blocked"],
+      default: "weekly",
+    },
+
     isActive: {
       type: Boolean,
       default: true,
@@ -43,9 +56,16 @@ const availabilitySchema = new mongoose.Schema(
 );
 
 availabilitySchema.index(
-  { therapist: 1, dayOfWeek: 1, startTime: 1 },
+  { therapist: 1, dayOfWeek: 1, startTime: 1, type: 1 },
   { unique: true }
 );
+
+availabilitySchema.index({
+  therapist: 1,
+  date: 1,
+  startTime: 1,
+  type: 1,
+});
 
 const Availability = mongoose.model(
   "Availability",

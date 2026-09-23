@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import "./Package.js";
 
 const sessionSchema = new mongoose.Schema(
   {
@@ -33,6 +34,7 @@ const sessionSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
+        "pending_payment",
         "scheduled",
         "confirmed",
         "completed",

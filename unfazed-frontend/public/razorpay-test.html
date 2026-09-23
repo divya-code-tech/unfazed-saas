@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unfazed Payment Test</title>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+
+    <h1>Unfazed</h1>
+    <h2>Razorpay Test Payment</h2>
+
+    <p>Amount: ₹1500</p>
+
+    <button onclick="makePayment()">Pay ₹1500</button>
+
+    <script>
+        function makePayment() {
+
+            const options = {
+                key: "rzp_test_TYJbacFAxYuSgi",
+
+                amount: 150000,
+
+                currency: "INR",
+
+                name: "Unfazed",
+
+                description: "Test Therapy Payment",
+
+                order_id: "order_TYiKenLqdOEKhZ",
+                
+                handler: function (response) {
+                    console.log("Payment successful!");
+                    console.log(response);
+
+                    alert("Payment successful!");
+                },
+
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+
+            razorpay.open();
+        }
+    </script>
+
+</body>
+</html>

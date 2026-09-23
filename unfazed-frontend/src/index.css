@@ -1,0 +1,377 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap");
+
+:root {
+  --uf-bg: #f7f8f5;
+  --uf-surface: #ffffff;
+  --uf-surface-soft: #f1f4ef;
+
+  --uf-text: #18221f;
+  --uf-text-soft: #65716d;
+  --uf-text-muted: #8b9692;
+
+  --uf-border: #e3e8e4;
+  --uf-border-strong: #d4ddd8;
+
+  --uf-teal: #2f7168;
+  --uf-teal-dark: #245c55;
+  --uf-teal-soft: #e3f0ed;
+
+  --uf-lavender: #8176a8;
+  --uf-lavender-soft: #eeeaf7;
+
+  --uf-amber: #a66a2b;
+  --uf-amber-soft: #f8eddf;
+
+  --uf-red: #a65353;
+  --uf-red-soft: #f8e8e8;
+
+  --uf-shadow-sm:
+    0 1px 2px rgba(24, 34, 31, 0.04),
+    0 4px 12px rgba(24, 34, 31, 0.03);
+
+  --uf-shadow-md:
+    0 8px 30px rgba(24, 34, 31, 0.07);
+
+  --uf-radius-sm: 8px;
+  --uf-radius-md: 14px;
+  --uf-radius-lg: 20px;
+
+  --uf-sidebar-width: 248px;
+
+  font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  color: var(--uf-text);
+  background: var(--uf-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--uf-bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(129, 118, 168, 0.06),
+      transparent 28%
+    ),
+    var(--uf-bg);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Manrope", "DM Sans", sans-serif;
+  color: var(--uf-text);
+}
+
+h1 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+h3 {
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+p {
+  line-height: 1.6;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ---------- Shared application surfaces ---------- */
+
+.uf-page {
+  min-height: 100vh;
+  color: var(--uf-text);
+}
+
+.uf-surface {
+  background: var(--uf-surface);
+  border: 1px solid var(--uf-border);
+  border-radius: var(--uf-radius-lg);
+  box-shadow: var(--uf-shadow-sm);
+}
+
+.uf-muted {
+  color: var(--uf-text-soft);
+}
+
+.uf-eyebrow {
+  color: var(--uf-teal);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.uf-divider {
+  height: 1px;
+  background: var(--uf-border);
+  border: 0;
+  margin: 0;
+}
+
+/* ---------- Buttons ---------- */
+
+.uf-button {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 16px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.uf-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.uf-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.uf-button-primary {
+  color: white;
+  background: var(--uf-teal);
+  box-shadow: 0 4px 12px rgba(47, 113, 104, 0.18);
+}
+
+.uf-button-primary:hover:not(:disabled) {
+  background: var(--uf-teal-dark);
+  box-shadow: 0 7px 18px rgba(47, 113, 104, 0.22);
+}
+
+.uf-button-secondary {
+  color: var(--uf-text);
+  background: var(--uf-surface);
+  border-color: var(--uf-border-strong);
+}
+
+.uf-button-secondary:hover:not(:disabled) {
+  background: var(--uf-surface-soft);
+}
+
+/* ---------- Forms ---------- */
+
+.uf-input {
+  width: 100%;
+  min-height: 44px;
+
+  padding: 0 13px;
+
+  color: var(--uf-text);
+  background: var(--uf-surface);
+
+  border: 1px solid var(--uf-border-strong);
+  border-radius: 10px;
+
+  outline: none;
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.uf-input::placeholder {
+  color: var(--uf-text-muted);
+}
+
+.uf-input:focus {
+  border-color: var(--uf-teal);
+  box-shadow: 0 0 0 3px rgba(47, 113, 104, 0.11);
+}
+
+.uf-label {
+  display: block;
+  margin-bottom: 7px;
+
+  color: var(--uf-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* ---------- Status indicators ---------- */
+
+.uf-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 5px 9px;
+  border-radius: 999px;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.uf-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.uf-status-success {
+  color: var(--uf-teal-dark);
+  background: var(--uf-teal-soft);
+}
+
+.uf-status-success .uf-status-dot {
+  background: var(--uf-teal);
+}
+
+.uf-status-warning {
+  color: var(--uf-amber);
+  background: var(--uf-amber-soft);
+}
+
+.uf-status-warning .uf-status-dot {
+  background: var(--uf-amber);
+}
+
+.uf-status-danger {
+  color: var(--uf-red);
+  background: var(--uf-red-soft);
+}
+
+.uf-status-danger .uf-status-dot {
+  background: var(--uf-red);
+}
+
+/* ---------- Focus accessibility ---------- */
+
+:focus-visible {
+  outline: 3px solid rgba(47, 113, 104, 0.25);
+  outline-offset: 2px;
+}
+
+/* ---------- Scrollbar ---------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5d0 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #cbd5d0;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #aebbb5;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  :root {
+    --uf-sidebar-width: 0px;
+  }
+}
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.85rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .uf-surface {
+    border-radius: 15px;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

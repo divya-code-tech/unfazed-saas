@@ -31,3 +31,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+unfazed-backend/storage/
+unfazed-backend/resetClientPassword.js
+unfazed-backend/scripts/resetTherapistPassword.js
