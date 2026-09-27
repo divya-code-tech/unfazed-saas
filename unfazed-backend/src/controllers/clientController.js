@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import Client from "../models/Client.js";
+import Session from "../models/Session.js";
+import Payment from "../models/Payment.js";
 
 export const getClients = async (req, res, next) => {
   try {
@@ -7,10 +9,34 @@ export const getClients = async (req, res, next) => {
       therapist: req.user.id,
     }).select("-password");
 
+    const clientsWithLastSession = await Promise.all(
+      clients.map(async (client) => {
+        const lastSession = await Session.findOne({
+          therapist: req.user.id,
+          client: client._id,
+          status: {
+            $in: [
+              "completed",
+              "confirmed",
+              "scheduled",
+              "no_show",
+            ],
+          },
+        })
+          .sort({ startTime: -1 })
+          .select("startTime endTime status");
+
+        return {
+          ...client.toObject(),
+          lastSession: lastSession || null,
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
-      count: clients.length,
-      clients,
+      count: clientsWithLastSession.length,
+      clients: clientsWithLastSession,
     });
   } catch (error) {
     next(error);
@@ -43,16 +69,18 @@ export const getClientById = async (req, res, next) => {
 export const createClient = async (req, res, next) => {
   try {
     const {
-      name,
-      email,
-      password,
-      phone,
-      avatar,
-      dateOfBirth,
-      gender,
-      languages,
-      intake,
-    } = req.body;
+  name,
+  email,
+  password,
+  phone,
+  avatar,
+  dateOfBirth,
+  gender,
+  languages,
+  tags,
+  intake,
+  consent,
+} = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -75,18 +103,30 @@ export const createClient = async (req, res, next) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const client = await Client.create({
-      therapist: req.user.id,
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      phone,
-      avatar,
-      dateOfBirth,
-      gender,
-      languages,
-      intake,
-    });
+    const normalizedConsent =
+  consent?.given === true
+    ? {
+        given: true,
+        givenAt: new Date(),
+      }
+    : {
+        given: false,
+      };
+
+const client = await Client.create({
+  therapist: req.user.id,
+  name,
+  email: email.toLowerCase(),
+  password: hashedPassword,
+  phone,
+  avatar,
+  dateOfBirth,
+  gender,
+  languages,
+  tags,
+  intake,
+  consent: normalizedConsent,
+});
 
     const clientResponse = client.toObject();
     delete clientResponse.password;
@@ -105,15 +145,17 @@ export const createClient = async (req, res, next) => {
 export const updateClient = async (req, res, next) => {
   try {
     const {
-      name,
-      email,
-      password,
-      phone,
-      avatar,
-      dateOfBirth,
-      gender,
-      languages,
-      intake,
+       name,
+       email,
+       password,
+       phone,
+       avatar,
+       dateOfBirth,
+       gender,
+       languages,
+       tags,
+       intake,
+       consent,
     } = req.body;
 
     const client = await Client.findOne({
@@ -175,8 +217,24 @@ export const updateClient = async (req, res, next) => {
       client.languages = languages;
     }
 
+    if (tags !== undefined) {
+      client.tags = tags;
+    }
+
     if (intake !== undefined) {
       client.intake = intake;
+    }
+
+    if (consent !== undefined) {
+     client.consent =
+       consent?.given === true
+      ? {
+          given: true,
+          givenAt: new Date(),
+        }
+      : {
+          given: false,
+        };
     }
 
     await client.save();

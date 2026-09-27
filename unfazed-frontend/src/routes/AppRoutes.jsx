@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 
 import Dashboard from "../pages/therapist/Dashboard";
 import Clients from "../pages/therapist/Clients";
+import ClientProfile from "../pages/therapist/ClientProfile";
 import Schedule from "../pages/therapist/Schedule";
 import Notes from "../pages/therapist/Notes";
 import Analytics from "../pages/therapist/Analytics";
@@ -71,6 +72,16 @@ function AppRoutes() {
           </AppShell>
         }
       />
+
+      <Route
+        path="/therapist/clients/:id"
+        element={
+          <AppShell>
+            <ClientProfile />
+          </AppShell>
+        }
+     />
+
 
       <Route
         path="/therapist/schedule"

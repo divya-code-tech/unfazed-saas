@@ -52,18 +52,30 @@ const clientSchema = new mongoose.Schema(
       default: [],
     },
 
+    tags: {
+      type: [String],
+      default: [],
+   },
+
     intake: {
-      concerns: {
+      presentingConcern: {
         type: String,
         trim: true,
+     },
+
+      history: {
+        type: String,
+        trim: true,
+     },
+    },
+
+      consent: {
+        given: {
+          type: Boolean,
+          default: false,
       },
-      goals: {
-        type: String,
-        trim: true,
-      },
-      notes: {
-        type: String,
-        trim: true,
+      givenAt: {
+        type: Date,
       },
     },
 
