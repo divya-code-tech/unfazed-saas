@@ -24,8 +24,8 @@ const packageSchema = new mongoose.Schema(
     sessionCount: {
       type: Number,
       required: true,
-      min: 1,
-    },
+      enum: [3, 6, 12],
+   },
 
     sessionDuration: {
       type: Number,

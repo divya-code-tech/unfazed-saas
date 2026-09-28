@@ -9,6 +9,7 @@ import Schedule from "../pages/therapist/Schedule";
 import Notes from "../pages/therapist/Notes";
 import Analytics from "../pages/therapist/Analytics";
 import Profile from "../pages/therapist/Profile";
+import Packages from "../pages/therapist/Packages";
 
 import TherapistProfile from "../pages/TherapistProfile";
 
@@ -109,6 +110,15 @@ function AppRoutes() {
           </AppShell>
         }
       />
+
+      <Route
+        path="/therapist/packages"
+        element={
+          <AppShell>
+            <Packages />
+          </AppShell>
+      }
+    />
 
       {/* Client experience */}
       <Route

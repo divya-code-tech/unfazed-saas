@@ -22,6 +22,11 @@ function AppShell({ children }) {
       icon: "○",
     },
     {
+       label: "Packages",
+       path: "/therapist/packages",
+       icon: "▣",
+    },
+    {
       label: "Schedule",
       path: "/therapist/schedule",
       icon: "◷",
