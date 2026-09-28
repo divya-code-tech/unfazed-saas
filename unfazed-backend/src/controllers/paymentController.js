@@ -2,6 +2,7 @@ import Payment from "../models/Payment.js";
 import Client from "../models/Client.js";
 import Package from "../models/Package.js";
 import Session from "../models/Session.js";
+import ClientPackage from "../models/ClientPackage.js";
 import { createRazorpayOrder } from "../services/paymentService.js";
 
 import {
@@ -293,6 +294,96 @@ export const createClientPaymentOrder = async (req, res, next) => {
   }
 };
 
+export const createClientPackagePaymentOrder = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { packageId } = req.body;
+
+    if (!packageId) {
+      return res.status(400).json({
+        success: false,
+        message: "Package ID is required",
+      });
+    }
+
+    const client = await Client.findById(req.user.id);
+
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    const packageData = await Package.findOne({
+      _id: packageId,
+      therapist: client.therapist,
+      isActive: true,
+    });
+
+    if (!packageData) {
+      return res.status(404).json({
+        success: false,
+        message: "Package not found or inactive",
+      });
+    }
+
+    const amount = Number(packageData.price);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "This package does not have a valid price configured",
+      });
+    }
+
+    const razorpayOrder = await createRazorpayOrder({
+      amount: Math.round(amount * 100),
+      currency: packageData.currency || "INR",
+      receipt: `package_${packageData._id}_${Date.now()}`,
+    });
+
+    const platformFee = 0;
+    const netAmount = amount - platformFee;
+
+    const payment = await Payment.create({
+      client: client._id,
+      therapist: client.therapist,
+      package: packageData._id,
+      session: null,
+      amount,
+      currency: packageData.currency || "INR",
+      status: "created",
+      provider: "razorpay",
+      razorpayOrderId: razorpayOrder.id,
+      gateway_transaction_id: razorpayOrder.id,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Package payment order created successfully",
+      package: {
+        id: packageData._id,
+        name: packageData.name,
+        sessionCount: packageData.sessionCount,
+        sessionDuration: packageData.sessionDuration,
+        price: packageData.price,
+        currency: packageData.currency || "INR",
+        validityDays: packageData.validityDays,
+      },
+      payment,
+      order: razorpayOrder,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getPayments = async (req, res, next) => {
   try {
     const payments = await Payment.find({
@@ -534,11 +625,46 @@ export const handleRazorpayWebhook = async (
 
       payment.status = "paid";
       payment.paidAt = new Date();
+   
+  await payment.save();
 
-      await payment.save();
+// Create the purchased client package for a package payment.
+if (payment.package && !payment.session) {
+  const packageData = await Package.findOne({
+    _id: payment.package,
+    therapist: payment.therapist,
+  });
 
-      // Confirm the linked booking
-      let confirmedSession = null;
+  if (!packageData) {
+    return res.status(404).json({
+      success: false,
+      message: "Package not found for this payment",
+    });
+  }
+
+  const purchasedAt = payment.paidAt || new Date();
+
+  const expiresAt = new Date(purchasedAt);
+
+  expiresAt.setDate(
+    expiresAt.getDate() + packageData.validityDays
+  );
+
+  await ClientPackage.create({
+    client: payment.client?._id || payment.client,
+    therapist: payment.therapist,
+    package: packageData._id,
+    sessionsPurchased: packageData.sessionCount,
+    sessionsUsed: 0,
+    purchasedAt,
+    expiresAt,
+    status: "active",
+    payment: payment._id,
+  });
+}
+
+// Confirm the linked booking
+let confirmedSession = null;
 
       if (payment.session) {
         const sessionId = payment.session;

@@ -4,6 +4,7 @@ import axiosInstance from "../../api/axiosInstance";
 function Dashboard() {
   const [clientCount, setClientCount] = useState(0);
   const [todaySessions, setTodaySessions] = useState([]);
+  const [pendingPaymentCount, setPendingPaymentCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -11,27 +12,47 @@ function Dashboard() {
       try {
         const token = localStorage.getItem("token");
 
-        const [clientsResponse, sessionsResponse] = await Promise.all([
-          axiosInstance.get("/clients", {
-            headers: {
+       const [
+         clientsResponse,
+         sessionsResponse,
+         paymentsResponse,
+       ] = await Promise.all([
+           axiosInstance.get("/clients", {
+             headers: {
               Authorization: `Bearer ${token}`,
-            },
-          }),
-          axiosInstance.get("/sessions", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ]);
+         },
+       }),
+      axiosInstance.get("/sessions", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+       },
+    }),
+    axiosInstance.get("/payments", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+     },
+  }),
+]);
 
         setClientCount(clientsResponse.data.count || 0);
+        const payments =
+          paymentsResponse.data.payments || [];
+
+        const pendingPayments = payments.filter(
+          (payment) =>
+            ["created", "pending"].includes(payment.status)
+         );
+
+    setPendingPaymentCount(
+      pendingPayments.length
+   );
 
         const sessions = sessionsResponse.data.sessions || [];
 
         const today = new Date();
 
         const sessionsToday = sessions.filter((session) => {
-          const sessionDate = new Date(session.startTime);
+        const sessionDate = new Date(session.startTime);
 
           return (
             sessionDate.getFullYear() === today.getFullYear() &&
@@ -79,7 +100,9 @@ function Dashboard() {
 
         <article>
           <p>Pending payments</p>
-          <h2>0</h2>
+          <h2>
+            {loading ? "—" : pendingPaymentCount}
+          </h2>
         </article>
 
         <article>

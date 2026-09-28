@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import RazorpayCheckout from "../../components/payment/RazorpayCheckout";
+import RazorpayPackageCheckout from "../../components/payment/RazorpayPackageCheckout";
+
 
 const therapistId = "6a9d4ff2896432582ca940c4";
 
@@ -12,6 +14,12 @@ function ClientPortal() {
 
   const [sessions, setSessions] = useState([]);
   const [booking, setBooking] = useState(null);
+
+  const [myPackages, setMyPackages] = useState([]);
+  const [loadingMyPackages, setLoadingMyPackages] = useState(true);
+
+  const [packages, setPackages] = useState([]);
+  const [loadingPackages, setLoadingPackages] = useState(true);
 
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -82,8 +90,74 @@ function ClientPortal() {
     }
   };
 
+  const loadAvailablePackages = async () => {
+  try {
+    setLoadingPackages(true);
+
+    const token = getToken();
+
+    if (!token) {
+      setLoadingPackages(false);
+      return;
+    }
+
+    const response = await axiosInstance.get(
+      "/client-portal/packages",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setPackages(response.data.packages || []);
+  } catch (requestError) {
+    console.error(
+      "Failed to load available packages:",
+      requestError
+    );
+  } finally {
+    setLoadingPackages(false);
+  }
+};
+
+const loadMyPackages = async () => {
+  try {
+    setLoadingMyPackages(true);
+
+    const token = getToken();
+
+    if (!token) {
+      setLoadingMyPackages(false);
+      return;
+    }
+
+    const response = await axiosInstance.get(
+      "/client-portal/my-packages",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setMyPackages(
+      response.data.clientPackages || []
+    );
+  } catch (requestError) {
+    console.error(
+      "Failed to load purchased packages:",
+      requestError
+    );
+  } finally {
+    setLoadingMyPackages(false);
+  }
+};
+
   useEffect(() => {
     loadMySessions();
+    loadAvailablePackages();
+    loadMyPackages();
   }, []);
 
   // --------------------------------------------------
@@ -247,69 +321,149 @@ function ClientPortal() {
     }
   };
 
-  // --------------------------------------------------
-  // Razorpay success -> wait for webhook confirmation
-  // --------------------------------------------------
   const handlePaymentSuccess = async () => {
-    if (!booking?._id) {
-      setMessage(
-        "Payment submitted successfully. Please check your session status."
-      );
-      return;
-    }
-
-    setPaymentChecking(true);
-    setError("");
-
+  if (!booking?._id) {
     setMessage(
-      "Payment submitted successfully. Waiting for confirmation..."
+      "Payment submitted successfully. Please check your session status."
     );
+    return;
+  }
 
-    const maxAttempts = 15;
-    const delay = 2000;
+  setPaymentChecking(true);
+  setError("");
 
-    for (
-      let attempt = 0;
-      attempt < maxAttempts;
-      attempt += 1
-    ) {
-      const updatedSession =
-        await refreshBookingStatus(booking._id);
+  setMessage(
+    "Payment submitted successfully. Waiting for confirmation..."
+  );
 
-      if (updatedSession?.status === "confirmed") {
-        setBooking(updatedSession);
+  const maxAttempts = 15;
+  const delay = 2000;
 
-        setMessage(
-          "Payment confirmed. Your therapy session is confirmed."
-        );
-
-        setPaymentChecking(false);
-        return;
-      }
-
-      await new Promise((resolve) =>
-        setTimeout(resolve, delay)
-      );
-    }
-
-    // One final check after the polling period.
-    const finalSession =
+  for (
+    let attempt = 0;
+    attempt < maxAttempts;
+    attempt += 1
+  ) {
+    const updatedSession =
       await refreshBookingStatus(booking._id);
 
-    if (finalSession?.status === "confirmed") {
-      setBooking(finalSession);
+    if (updatedSession?.status === "confirmed") {
+      setBooking(updatedSession);
 
       setMessage(
         "Payment confirmed. Your therapy session is confirmed."
       );
-    } else {
-      setMessage(
-        "Payment was submitted. Confirmation is still being processed. Please refresh the page shortly."
+
+      setPaymentChecking(false);
+      return;
+    }
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, delay)
+    );
+  }
+
+  const finalSession =
+    await refreshBookingStatus(booking._id);
+
+  if (finalSession?.status === "confirmed") {
+    setBooking(finalSession);
+
+    setMessage(
+      "Payment confirmed. Your therapy session is confirmed."
+    );
+  } else {
+    setMessage(
+      "Payment was submitted. Confirmation is still being processed. Please refresh the page shortly."
+    );
+  }
+
+  setPaymentChecking(false);
+};
+
+  // --------------------------------------------------
+  // Razorpay success -> wait for webhook confirmation
+  // --------------------------------------------------
+ const handlePackagePaymentSuccess = async (
+  paymentResponse
+) => {
+  setError("");
+
+  setMessage(
+    "Package payment submitted successfully. Waiting for confirmation..."
+  );
+
+  const razorpayPaymentId =
+    paymentResponse?.razorpay_payment_id;
+
+  if (!razorpayPaymentId) {
+    setMessage(
+      "Payment was submitted, but the payment ID was not returned. Please refresh the page shortly."
+    );
+    return;
+  }
+
+  const maxAttempts = 15;
+  const delay = 2000;
+
+  for (
+    let attempt = 0;
+    attempt < maxAttempts;
+    attempt += 1
+  ) {
+    try {
+      const token = getToken();
+
+      if (!token) {
+        break;
+      }
+
+      const response = await axiosInstance.get(
+        "/client-portal/my-packages",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updatedPackages =
+        response.data.clientPackages || [];
+
+      setMyPackages(updatedPackages);
+
+      const newlyPurchasedPackage =
+        updatedPackages.find(
+          (clientPackage) =>
+            clientPackage.payment?.status === "paid" &&
+            clientPackage.payment?.razorpayPaymentId ===
+              razorpayPaymentId
+        );
+
+      if (newlyPurchasedPackage) {
+        setMessage(
+          "Payment confirmed. Your package has been purchased successfully."
+        );
+        return;
+      }
+    } catch (requestError) {
+      console.error(
+        "Failed to check package payment:",
+        requestError
       );
     }
 
-    setPaymentChecking(false);
-  };
+    await new Promise((resolve) =>
+      setTimeout(resolve, delay)
+    );
+  }
+
+  setMessage(
+    "Payment was submitted. Confirmation is still being processed. Please refresh the page shortly."
+  );
+};
+
+
 
   // --------------------------------------------------
   // Download invoice securely with client JWT
@@ -520,6 +674,174 @@ slots.length > 0 && (
           </button>
         </div>
       )}
+
+{/* ----------------------------------------------
+    AVAILABLE PACKAGES
+---------------------------------------------- */}
+<div style={{ marginTop: "40px" }}>
+  <h2>Available Packages</h2>
+
+  {loadingPackages ? (
+    <p>Loading available packages...</p>
+  ) : packages.length === 0 ? (
+    <p>No packages are currently available.</p>
+  ) : (
+    <div>
+      {packages.map((packageData) => (
+        <div
+          key={packageData._id}
+          style={{
+            marginTop: "15px",
+            padding: "18px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            maxWidth: "500px",
+          }}
+        >
+          <h3>{packageData.name}</h3>
+
+          {packageData.description && (
+            <p>{packageData.description}</p>
+          )}
+
+          <p>
+            Sessions:{" "}
+            <strong>{packageData.sessionCount}</strong>
+          </p>
+
+          <p>
+            Session duration:{" "}
+            <strong>
+              {packageData.sessionDuration} minutes
+            </strong>
+          </p>
+
+          <p>
+            Total price:{" "}
+            <strong>
+              ₹
+              {Number(packageData.price).toLocaleString(
+                "en-IN"
+              )}
+            </strong>
+          </p>
+
+          <p>
+            Per-session rate:{" "}
+            <strong>
+              ₹
+              {Number(
+                packageData.perSessionRate
+              ).toLocaleString("en-IN")}
+            </strong>
+          </p>
+
+          <p>
+            Valid for:{" "}
+            <strong>
+              {packageData.validityDays} days
+            </strong>
+          </p>
+
+          <RazorpayPackageCheckout
+            packageId={packageData._id}
+            amount={packageData.price}
+            onSuccess={handlePackagePaymentSuccess}
+         />
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+{/* ----------------------------------------------
+    MY PACKAGES
+---------------------------------------------- */}
+<div style={{ marginTop: "40px" }}>
+  <h2>My Packages</h2>
+
+  {loadingMyPackages ? (
+    <p>Loading your packages...</p>
+  ) : myPackages.length === 0 ? (
+    <p>You don't have any purchased packages yet.</p>
+  ) : (
+    <div>
+      {myPackages.map((clientPackage) => (
+        <div
+          key={clientPackage._id}
+          style={{
+            marginTop: "15px",
+            padding: "18px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            maxWidth: "500px",
+          }}
+        >
+          <h3>
+            {clientPackage.package?.name ||
+              "Therapy Package"}
+          </h3>
+
+          <p>
+            Sessions purchased:{" "}
+            <strong>
+              {clientPackage.sessionsPurchased}
+            </strong>
+          </p>
+
+          <p>
+            Sessions used:{" "}
+            <strong>
+              {clientPackage.sessionsUsed}
+            </strong>
+          </p>
+
+          <p>
+            Sessions remaining:{" "}
+            <strong>
+              {clientPackage.sessionsRemaining}
+            </strong>
+          </p>
+
+          <p>
+            Purchased on:{" "}
+            <strong>
+              {formatDate(clientPackage.purchasedAt)}
+            </strong>
+          </p>
+
+          <p>
+            Expires on:{" "}
+            <strong>
+              {formatDate(clientPackage.expiresAt)}
+            </strong>
+          </p>
+
+          <p>
+            Status:{" "}
+            <strong>
+              {clientPackage.status}
+            </strong>
+          </p>
+
+          {clientPackage.payment?.status ===
+            "paid" && (
+            <button
+              type="button"
+              onClick={() =>
+                handleDownloadInvoice(
+                  clientPackage.payment._id
+                )
+              }
+            >
+              📄 Download Invoice
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
 {/* ----------------------------------------------
           PAYMENT REQUIRED

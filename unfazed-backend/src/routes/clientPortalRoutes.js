@@ -5,6 +5,8 @@ import { requireClient } from "../middleware/roleMiddleware.js";
 
 import {
   getMyProfile,
+  getMyAvailablePackages,
+  getMyPackages,
   getMySessions,
   getMyPendingPayment,
   downloadMyInvoice,
@@ -17,6 +19,20 @@ router.get(
   authMiddleware,
   requireClient,
   getMyProfile
+);
+
+router.get(
+  "/packages",
+  authMiddleware,
+  requireClient,
+  getMyAvailablePackages
+);
+
+router.get(
+  "/my-packages",
+  authMiddleware,
+  requireClient,
+  getMyPackages
 );
 
 router.get(

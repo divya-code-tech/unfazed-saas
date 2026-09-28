@@ -11,6 +11,7 @@ import {
   updatePaymentDetails,
   createPaymentOrder,
   createClientPaymentOrder,
+  createClientPackagePaymentOrder,
   verifyPayment,
  } from "../controllers/paymentController.js";
 
@@ -24,6 +25,13 @@ router.post(
   authMiddleware,
   requireClient,
   createClientPaymentOrder
+);
+
+router.post(
+  "/client/package/create-order",
+  authMiddleware,
+  requireClient,
+  createClientPackagePaymentOrder
 );
 router.post("/verify", authMiddleware, verifyPayment);
 router.get("/:id", authMiddleware, getPaymentById);

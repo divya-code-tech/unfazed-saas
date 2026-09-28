@@ -1,6 +1,8 @@
 import Client from "../models/Client.js";
 import Session from "../models/Session.js";
 import Payment from "../models/Payment.js";
+import Package from "../models/Package.js";
+import ClientPackage from "../models/ClientPackage.js";
 import { getInvoicePath } from "../services/storageService.js";
 
 export const getMyProfile = async (req, res, next) => {
@@ -24,6 +26,95 @@ export const getMyProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getMyAvailablePackages = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const client = await Client.findById(
+      req.user.id
+    ).select("therapist");
+
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: "Client profile not found",
+      });
+    }
+
+    const packages = await Package.find({
+      therapist: client.therapist,
+      isActive: true,
+    })
+      .sort({
+        sessionCount: 1,
+        createdAt: -1,
+      })
+      .lean();
+
+    const packagesWithRate = packages.map(
+      (packageData) => ({
+        ...packageData,
+        perSessionRate:
+          Number(packageData.price) /
+          Number(packageData.sessionCount),
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: packagesWithRate.length,
+      packages: packagesWithRate,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyPackages = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const clientPackages = await ClientPackage.find({
+      client: req.user.id,
+    })
+      .populate(
+        "package",
+        "name description sessionCount sessionDuration price currency validityDays"
+      )
+      .populate(
+        "payment",
+        "_id amount currency status razorpayPaymentId paidAt createdAt"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+    const packagesWithRemaining = clientPackages.map(
+      (clientPackage) => ({
+        ...clientPackage.toObject(),
+        sessionsRemaining: Math.max(
+          clientPackage.sessionsPurchased -
+            clientPackage.sessionsUsed,
+          0
+        ),
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: packagesWithRemaining.length,
+      clientPackages: packagesWithRemaining,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getMySessions = async (req, res, next) => {
   try {
     const sessions = await Session.find({
