@@ -883,7 +883,8 @@ slots.length > 0 && (
               <strong>
                 ₹
                 {Number(
-                  booking.payment?.amount || 1500
+                 booking.payment?.amount ??
+                    booking.therapist?.sessionPrice
                 ).toLocaleString("en-IN")}
               </strong>
             </p>
@@ -892,7 +893,8 @@ slots.length > 0 && (
             <RazorpayCheckout
               sessionId={booking._id}
               amount={
-                booking.payment?.amount || 1500
+                 booking.payment?.amount ??
+                  booking.therapist?.sessionPrice
               }
               onSuccess={handlePaymentSuccess}
             />
@@ -957,9 +959,8 @@ slots.length > 0 && (
                 <strong>
                   ₹
                   {Number(
-                    session.payment?.amount ||
-                      session.therapist?.sessionPrice ||
-                      1500
+                    session.payment?.amount ??
+                      session.therapist?.sessionPrice
                   ).toLocaleString("en-IN")}
                 </strong>
               </p>
