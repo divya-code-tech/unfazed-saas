@@ -7,9 +7,9 @@ import { getInvoicePath } from "../services/storageService.js";
 
 export const getMyProfile = async (req, res, next) => {
   try {
-    const client = await Client.findById(req.user.id).select(
-      "-password"
-    );
+     const client = await Client.findById(req.user.id)
+       .select("-password")
+       .populate("therapist", "name email sessionPrice");
 
     if (!client) {
       return res.status(404).json({

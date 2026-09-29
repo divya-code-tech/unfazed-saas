@@ -4,9 +4,8 @@ import RazorpayCheckout from "../../components/payment/RazorpayCheckout";
 import RazorpayPackageCheckout from "../../components/payment/RazorpayPackageCheckout";
 
 
-const therapistId = "6a9d4ff2896432582ca940c4";
-
 function ClientPortal() {
+  const [therapistId, setTherapistId] = useState("");
   const [date, setDate] = useState("2026-09-08");
 
   const [slots, setSlots] = useState([]);
@@ -59,7 +58,14 @@ function ClientPortal() {
 
       const loadedSessions = response.data.sessions || [];
 
-      setSessions(loadedSessions);
+     setSessions(loadedSessions);
+
+     const sessionTherapistId =
+       loadedSessions[0]?.therapist?._id;
+
+     if (sessionTherapistId) {
+       setTherapistId(sessionTherapistId);
+  }
 
       // Find the client's pending payment session.
       // We intentionally check the session status here
