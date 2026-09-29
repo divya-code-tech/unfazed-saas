@@ -6,7 +6,15 @@ import RazorpayPackageCheckout from "../../components/payment/RazorpayPackageChe
 
 function ClientPortal() {
   const [therapistId, setTherapistId] = useState("");
-  const [date, setDate] = useState("2026-09-08");
+  const [date, setDate] = useState(() => {
+  const today = new Date();
+
+  return `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    today.getDate()
+  ).padStart(2, "0")}`;
+});
 
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
