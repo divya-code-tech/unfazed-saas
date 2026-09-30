@@ -1,7 +1,26 @@
+
 import { useEffect, useState } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Italic from "@tiptap/extension-italic";
 import axiosInstance from "../../api/axiosInstance";
+import DOMPurify from "dompurify";
 
 function Notes() {
+
+  const editor = useEditor({
+   extensions: [
+  StarterKit.configure({
+    italic: false,
+  }),
+  Italic,
+],
+    content: "",
+    onUpdate: ({ editor }) => {
+      setNoteContent(editor.getHTML());
+    },
+  });
+
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState("");
   const [noteContent, setNoteContent] = useState("");
@@ -203,20 +222,59 @@ function Notes() {
                 Clinical Note
               </label>
 
-              <textarea
-                className="uf-input"
-                rows="8"
-                value={noteContent}
-                onChange={(event) =>
-                  setNoteContent(event.target.value)
-                }
-                placeholder="Enter your clinical observations, discussion points, progress, or follow-up notes..."
-                style={{
-                  padding: "12px",
-                  resize: "vertical",
-                }}
-              />
-            </div>
+
+ <div
+  style={{
+    border: "1px solid var(--uf-border)",
+    borderRadius: "10px",
+    overflow: "hidden",
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      padding: "10px",
+      borderBottom: "1px solid var(--uf-border)",
+    }}
+  >
+    <button
+      type="button"
+      onClick={() =>
+        editor?.chain().focus().toggleBold().run()
+      }
+    >
+      Bold
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        editor?.chain().focus().toggleItalic().run()
+      }
+    >
+      Italic
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        editor?.chain().focus().toggleBulletList().run()
+      }
+    >
+      Bullet List
+    </button>
+  </div>
+
+  <EditorContent
+    editor={editor}
+    style={{
+      minHeight: "180px",
+      padding: "12px",
+    }}
+  />
+</div>
+ </div>
 
             <label
               style={{
@@ -278,9 +336,11 @@ function Notes() {
                       marginTop: "12px",
                     }}
                   >
-                    <p style={{ whiteSpace: "pre-wrap" }}>
-                      {note.content}
-                    </p>
+                   <div
+                     dangerouslySetInnerHTML={{
+                       __html: DOMPurify.sanitize(note.content),
+                    }}
+                  />
 
                     <p
                       className="uf-muted"

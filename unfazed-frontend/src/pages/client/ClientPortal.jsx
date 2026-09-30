@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import RazorpayCheckout from "../../components/payment/RazorpayCheckout";
 import RazorpayPackageCheckout from "../../components/payment/RazorpayPackageCheckout";
+import DOMPurify from "dompurify";
 
 
 function ClientPortal() {
@@ -21,6 +22,7 @@ function ClientPortal() {
 
   const [sessions, setSessions] = useState([]);
   const [booking, setBooking] = useState(null);
+  const [sessionNotes, setSessionNotes] = useState([]);
 
   const [myPackages, setMyPackages] = useState([]);
   const [loadingMyPackages, setLoadingMyPackages] = useState(true);
@@ -68,6 +70,8 @@ function ClientPortal() {
 
      setSessions(loadedSessions);
 
+     await loadMySessionNotes(loadedSessions);
+
      const sessionTherapistId =
        loadedSessions[0]?.therapist?._id;
 
@@ -100,9 +104,49 @@ function ClientPortal() {
           "Unable to load your sessions."
       );
     } finally {
-      setLoadingSessions(false);
-    }
+      setLoadingSessions(false);}
   };
+
+  const loadMySessionNotes = async (clientSessions) => {
+  try {
+    const token = getToken();
+
+    if (!token || !Array.isArray(clientSessions)) {
+      return;
+    }
+
+    const noteResponses = await Promise.all(
+      clientSessions.map((session) =>
+        axiosInstance.get(
+          `/client-portal/sessions/${session._id}/notes`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+      )
+    );
+
+    const sharedNotes = noteResponses.flatMap(
+      (response, index) => {
+        const notes = response.data.notes || [];
+
+        return notes.map((note) => ({
+          ...note,
+          session: clientSessions[index],
+        }));
+      }
+    );
+
+    setSessionNotes(sharedNotes);
+  } catch (requestError) {
+    console.error(
+      "Failed to load shared clinical notes:",
+      requestError
+    );
+  }
+};
 
   const loadAvailablePackages = async () => {
   try {
@@ -999,9 +1043,47 @@ slots.length > 0 && (
         </div>
       )}
 
-      {/* ----------------------------------------------
+ {/* ----------------------------------------------
+          CLINICAL NOTES
+---------------------------------------------- */}
+{sessionNotes.length > 0 && (
+  <div style={{ marginTop: "40px" }}>
+    <h2>Clinical Notes</h2>
+
+    {sessionNotes.map((note) => (
+      <div
+        key={note._id}
+        style={{
+          marginBottom: "15px",
+          padding: "18px",
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+        }}
+      >
+        <p>
+          <strong>Session Date:</strong>{" "}
+          {note.session?.startTime
+            ? formatDate(note.session.startTime)
+            : "N/A"}
+        </p>
+
+        <p>
+          <strong>Note:</strong>
+        </p>
+
+        <div
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(note.content),
+          }}
+        />
+      </div>
+    ))}
+  </div>
+)}
+
+{/* ----------------------------------------------
           EMPTY SESSION STATE
-      ---------------------------------------------- */}
+---------------------------------------------- */}
       {!loadingSessions &&
         sessions.length === 0 && (
           <p style={{ marginTop: "30px" }}>

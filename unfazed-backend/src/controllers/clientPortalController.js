@@ -1,5 +1,6 @@
 import Client from "../models/Client.js";
 import Session from "../models/Session.js";
+import SessionNote from "../models/SessionNote.js";
 import Payment from "../models/Payment.js";
 import Package from "../models/Package.js";
 import ClientPackage from "../models/ClientPackage.js";
@@ -146,6 +147,40 @@ export const getMySessions = async (req, res, next) => {
       success: true,
       count: sessionsWithPayments.length,
       sessions: sessionsWithPayments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMySessionNotes = async (req, res, next) => {
+  try {
+    const { sessionId } = req.params;
+
+    const session = await Session.findOne({
+      _id: sessionId,
+      client: req.user.id,
+    });
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found",
+      });
+    }
+
+    const notes = await SessionNote.find({
+      session: session._id,
+      client: req.user.id,
+      isClientVisible: true,
+    })
+      .populate("session", "startTime endTime status")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: notes.length,
+      notes,
     });
   } catch (error) {
     next(error);

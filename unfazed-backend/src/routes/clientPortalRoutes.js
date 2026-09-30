@@ -8,6 +8,7 @@ import {
   getMyAvailablePackages,
   getMyPackages,
   getMySessions,
+  getMySessionNotes,
   getMyPendingPayment,
   downloadMyInvoice,
 } from "../controllers/clientPortalController.js";
@@ -41,6 +42,14 @@ router.get(
   requireClient,
   getMySessions
 );
+
+router.get(
+  "/sessions/:sessionId/notes",
+  authMiddleware,
+  requireClient,
+  getMySessionNotes
+);
+
 
 router.get(
   "/pending-payment",
