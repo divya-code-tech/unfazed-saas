@@ -1,5 +1,6 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
+import entitlementMiddleware from "../middleware/entitlementMiddleware.js";
 
 import {
   createPackage,
@@ -10,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.post("/", authMiddleware, createPackage);
+router.post("/",authMiddleware,entitlementMiddleware("packageCreation"),createPackage);
 router.get("/", authMiddleware, getPackages);
 router.put("/:id", authMiddleware, updatePackage);
 router.delete("/:id", authMiddleware, deletePackage);

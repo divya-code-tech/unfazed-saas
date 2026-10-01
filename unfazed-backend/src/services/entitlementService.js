@@ -1,5 +1,7 @@
 import Therapist from "../models/Therapist.js";
 import SubscriptionTierConfig from "../models/SubscriptionTierConfig.js";
+import Client from "../models/Client.js";
+import Package from "../models/Package.js";
 
 /**
  * Get the subscription configuration for a therapist.
@@ -33,17 +35,36 @@ export const getTherapistEntitlements = async (therapistId) => {
 export const canAccess = async (therapistId, featureKey) => {
   const tierConfig = await getTherapistEntitlements(therapistId);
 
-  const featureAccess = {
-    analytics: tierConfig.analyticsEnabled,
-    chat: tierConfig.chatEnabled,
-    customBranding: tierConfig.customBrandingEnabled,
-  };
-
-  if (!(featureKey in featureAccess)) {
-    throw new Error(`Unknown feature: ${featureKey}`);
+  if (featureKey === "analytics") {
+    return tierConfig.analyticsEnabled === true;
   }
 
-  return featureAccess[featureKey] === true;
+  if (featureKey === "chat") {
+    return tierConfig.chatEnabled === true;
+  }
+
+  if (featureKey === "customBranding") {
+    return tierConfig.customBrandingEnabled === true;
+  }
+
+  if (featureKey === "clientCreation") {
+    const activeClientCount = await Client.countDocuments({
+      therapist: therapistId,
+      isActive: true,
+    });
+
+    return activeClientCount < tierConfig.maxClients;
+  }
+
+  if (featureKey === "packageCreation") {
+    const packageCount = await Package.countDocuments({
+      therapist: therapistId,
+    });
+
+    return packageCount < tierConfig.maxPackages;
+  }
+
+  throw new Error(`Unknown feature: ${featureKey}`);
 };
 
 /**

@@ -1,5 +1,6 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
+import entitlementMiddleware from "../middleware/entitlementMiddleware.js";
 
 import {
   getClients,
@@ -15,7 +16,7 @@ router.get("/", authMiddleware, getClients);
 
 router.get("/:id", authMiddleware, getClientById);
 
-router.post("/", authMiddleware, createClient);
+router.post( "/", authMiddleware, entitlementMiddleware("clientCreation"),createClient );
 
 router.put("/:id", authMiddleware, updateClient);
 
