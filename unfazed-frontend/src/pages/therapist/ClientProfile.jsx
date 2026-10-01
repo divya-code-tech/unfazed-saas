@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axiosInstance from "../../api/axiosInstance";
+import { useAuth } from "../../context/AuthContext";
+import ChatWindow from "../../components/chat/ChatWindow";
 
 function ClientProfile() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   const [client, setClient] = useState(null);
   const [sessions, setSessions] = useState([]);
@@ -265,6 +268,19 @@ function ClientProfile() {
       </p>
 
       <hr />
+
+{/* =========================
+          CHAT
+========================= */}
+
+<h2>Chat</h2>
+
+<ChatWindow
+  clientId={id}
+  currentUserId={user?.id}
+/>
+
+<hr />
 
       {/* =========================
           SESSION HISTORY

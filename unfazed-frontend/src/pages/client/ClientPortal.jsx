@@ -3,12 +3,17 @@ import axiosInstance from "../../api/axiosInstance";
 import RazorpayCheckout from "../../components/payment/RazorpayCheckout";
 import RazorpayPackageCheckout from "../../components/payment/RazorpayPackageCheckout";
 import DOMPurify from "dompurify";
+import { useAuth } from "../../context/AuthContext";
+import ChatWindow from "../../components/chat/ChatWindow";
 
 
 function ClientPortal() {
+
+  const { user } = useAuth();
   const [therapistId, setTherapistId] = useState("");
   const [date, setDate] = useState(() => {
   const today = new Date();
+
 
   return `${today.getFullYear()}-${String(
     today.getMonth() + 1
@@ -665,7 +670,7 @@ slots.length > 0 && (
    <div>
      <h2>Available Slots</h2>
 
-    { 
+    {
     slots.map((slot) => {
       const isSelected =
       selectedSlot?.startTime === slot.startTime &&
@@ -1090,6 +1095,21 @@ slots.length > 0 && (
             You don't have any sessions yet.
           </p>
         )}
+
+{/* ----------------------------------------------
+          CHAT
+---------------------------------------------- */}
+      <hr />
+
+      <div style={{ marginTop: "40px" }}>
+        <h2>Chat with your Therapist</h2>
+
+        <ChatWindow
+          clientId={user?.id}
+          currentUserId={user?.id}
+        />
+      </div>
+
 
       {/* ----------------------------------------------
           MESSAGES / ERRORS

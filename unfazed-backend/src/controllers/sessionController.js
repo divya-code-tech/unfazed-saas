@@ -1,6 +1,7 @@
 import Session from "../models/Session.js";
 import Client from "../models/Client.js";
 import Package from "../models/Package.js";
+import {sendPostSessionFollowUp,} from "../services/notificationService.js";
 
 export const getSessions = async (req, res, next) => {
   try {
@@ -36,6 +37,8 @@ export const getSessionById = async (req, res, next) => {
         message: "Session not found",
       });
     }
+
+        const previousStatus = session.status;
 
     res.status(200).json({
       success: true,
@@ -256,7 +259,10 @@ export const updateSession = async (req, res, next) => {
       });
     }
 
+
     session.duration = calculatedDuration;
+
+    const previousStatus = session.status;
 
     if (status !== undefined) {
       session.status = status;
@@ -291,11 +297,38 @@ export const updateSession = async (req, res, next) => {
       });
     }
 
+
     await session.save();
 
     const updatedSession = await Session.findById(session._id)
-      .populate("client", "name email")
+      .populate("client", "name email phone")
       .populate("package", "name price");
+
+    // ----------------------------------------------
+    // Post-session follow-up notification
+    // ----------------------------------------------
+    if (
+      previousStatus !== "completed" &&
+      session.status === "completed" &&
+      !session.followUpSentAt &&
+      updatedSession.client
+    ) {
+      try {
+        await sendPostSessionFollowUp({
+          clientName: updatedSession.client.name,
+          clientEmail: updatedSession.client.email,
+          clientPhone: updatedSession.client.phone,
+        });
+
+        session.followUpSentAt = new Date();
+        await session.save();
+      } catch (notificationError) {
+        console.error(
+          `[Notification] Failed post-session follow-up for session ${session._id}:`,
+          notificationError
+        );
+      }
+    }
 
     res.status(200).json({
       success: true,

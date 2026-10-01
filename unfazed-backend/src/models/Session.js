@@ -69,6 +69,16 @@ const sessionSchema = new mongoose.Schema(
       maxlength: 2000,
     },
 
+    reminderSentAt: {
+      type: Date,
+      default: null,
+    },
+
+    followUpSentAt: {
+      type: Date,
+      default: null,
+    },
+
     cancellationReason: {
       type: String,
       trim: true,

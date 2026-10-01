@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import http from "http";
 import app from "./app.js";
 import connectDB from "./src/config/db.js";
+import { startNotificationScheduler } from "./src/services/notificationScheduler.js";
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ const startServer = async () => {
 });
 
     chatSocket(io);
+
+    startNotificationScheduler();
 
     server.listen(PORT, () => {
       console.log(`Unfazed API running on port ${PORT}`);
