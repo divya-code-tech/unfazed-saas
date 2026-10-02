@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import axiosInstance from "../../api/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
 import ChatWindow from "../../components/chat/ChatWindow";
+import DOMPurify from "dompurify";
 
 function ClientProfile() {
   const { id } = useParams();
@@ -437,7 +438,11 @@ function ClientProfile() {
                 <strong>Note:</strong>
               </p>
 
-              <p>{note.content}</p>
+              <div
+                  dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(note.content),
+                }}
+              />
 
               <p>
                 <strong>Visibility:</strong>{" "}
