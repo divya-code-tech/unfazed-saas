@@ -94,22 +94,28 @@ export const loginTherapist = async (req, res, next) => {
     const therapist = await Therapist.findOne({
       email: email.toLowerCase(),
     }).select("+password");
-
-    console.log("[LOGIN DEBUG]", {
-      email: email.toLowerCase(),
-      found: Boolean(therapist),
-      database: mongoose.connection.name,
-      host: mongoose.connection.host,
-    });
+   
     
-    if (!therapist) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
-      });
-    }
+  const therapistCount = await mongoose.connection.db
+   .collection("therapists")
+   .countDocuments();
 
-    const isPasswordValid = await bcrypt.compare(
+console.log("[LOGIN DEBUG]", {
+  email: email.toLowerCase(),
+  found: Boolean(therapist),
+  database: mongoose.connection.name,
+  host: mongoose.connection.host,
+  therapistCount,
+});
+
+if (!therapist) {
+  return res.status(401).json({
+    success: false,
+    message: "Invalid email or password",
+  });
+}
+    
+  const isPasswordValid = await bcrypt.compare(
       password,
       therapist.password
     );
