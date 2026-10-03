@@ -94,6 +94,14 @@ export const loginTherapist = async (req, res, next) => {
       email: email.toLowerCase(),
     }).select("+password");
 
+    console.log("[LOGIN DEBUG]", {
+      email: email.toLowerCase(),
+      found: Boolean(therapist),
+      hasPassword: Boolean(therapist?.password),
+      passwordLength: therapist?.password?.length,
+      passwordPrefix: therapist?.password?.slice(0, 4),
+    });
+
     if (!therapist) {
       return res.status(401).json({
         success: false,
