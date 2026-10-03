@@ -10,6 +10,8 @@ import Notes from "../pages/therapist/Notes";
 import Analytics from "../pages/therapist/Analytics";
 import Profile from "../pages/therapist/Profile";
 import Packages from "../pages/therapist/Packages";
+import Chat from "../pages/therapist/Chat";
+import Subscription from "../pages/therapist/Subscription";
 
 import TherapistProfile from "../pages/TherapistProfile";
 
@@ -119,6 +121,24 @@ function AppRoutes() {
           </AppShell>
       }
     />
+
+    <Route
+      path="/therapist/chat"
+      element={
+        <AppShell>
+           <Chat />
+        </AppShell>
+      }
+  />
+
+  <Route
+       path="/therapist/subscription"
+       element={
+    <AppShell>
+      <Subscription />
+    </AppShell>
+  }
+/>
 
       {/* Client experience */}
       <Route

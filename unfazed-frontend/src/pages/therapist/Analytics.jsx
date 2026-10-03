@@ -59,7 +59,7 @@ function Analytics() {
 
   if (loading) {
     return (
-      <main>
+      <main className="uf-analytics-page">
         <header>
           <p>ANALYTICS</p>
           <h1>Practice Analytics</h1>
@@ -71,7 +71,7 @@ function Analytics() {
 
   if (upgradeRequired) {
     return (
-      <main>
+      <main className="uf-analytics-page">
         <header>
           <p>ANALYTICS</p>
           <h1>Practice Analytics</h1>
@@ -101,7 +101,7 @@ function Analytics() {
 
   if (error) {
     return (
-      <main>
+      <main className="uf-analytics-page">
         <header>
           <p>ANALYTICS</p>
           <h1>Practice Analytics</h1>
@@ -116,154 +116,267 @@ function Analytics() {
 
   const revenueTrend = analytics?.revenueTrend || [];
 
-  return (
-    <main>
-      <header>
-        <p>ANALYTICS</p>
+ return (
+  <main className="uf-analytics-page">
+    <div className="uf-analytics-header">
+      <div>
+        <p className="uf-eyebrow">Practice insights</p>
 
         <h1>Practice Analytics</h1>
 
-        <p>
-          A monthly view of your practice performance.
+        <p className="uf-muted">
+          A clear view of your practice performance and revenue activity.
         </p>
-      </header>
+      </div>
 
-      <section>
-        <article>
-          <p>Revenue this month</p>
+      <div className="uf-analytics-period">
+        <span>Current period</span>
+        <strong>This month</strong>
+      </div>
+    </div>
 
-          <h2>
+    <section className="uf-analytics-kpis">
+      <article className="uf-analytics-kpi-card">
+        <div className="uf-analytics-kpi-top">
+          <span className="uf-analytics-kpi-label">
+            Revenue this month
+          </span>
+
+          <span className="uf-analytics-kpi-icon">
             ₹
-            {Number(
-              analytics?.revenue || 0
-            ).toLocaleString("en-IN")}
-          </h2>
-        </article>
+          </span>
+        </div>
 
-        <article>
-          <p>Active clients</p>
-
-          <h2>
-            {analytics?.activeClients || 0}
-          </h2>
-        </article>
-
-        <article>
-          <p>No-show rate</p>
-
-          <h2>
-            {analytics?.noShowRate || 0}%
-          </h2>
-        </article>
-
-        <article>
-          <p>Total sessions</p>
-
-          <h2>
-            {analytics?.totalSessions || 0}
-          </h2>
-        </article>
-      </section>
-
-      <section>
-        <h2>Revenue trend</h2>
-
-        {revenueTrend.length === 0 ? (
-          <p>
-            No paid revenue has been recorded for this
-            month yet.
-          </p>
-        ) : (
-          <div
-            style={{
-              width: "100%",
-              height: 320,
-            }}
-          >
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <LineChart
-                data={revenueTrend}
-                margin={{
-                  top: 20,
-                  right: 20,
-                  left: 10,
-                  bottom: 20,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(value) =>
-                    new Date(value).toLocaleDateString(
-                      "en-IN",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )
-                  }
-                />
-
-                <YAxis />
-
-                <Tooltip
-                  formatter={(value) => [
-                    `₹${Number(value).toLocaleString(
-                      "en-IN"
-                    )}`,
-                    "Revenue",
-                  ]}
-                  labelFormatter={(label) =>
-                    new Date(label).toLocaleDateString(
-                      "en-IN",
-                      {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )
-                  }
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  strokeWidth={2}
-                  dot
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2>Session overview</h2>
+        <h2>
+          ₹
+          {Number(
+            analytics?.revenue || 0
+          ).toLocaleString("en-IN")}
+        </h2>
 
         <p>
-          Completed and scheduled session activity:
-          {" "}
-          {analytics?.totalSessions || 0}
+          Recorded paid revenue for the current period
         </p>
+      </article>
+
+      <article className="uf-analytics-kpi-card">
+        <div className="uf-analytics-kpi-top">
+          <span className="uf-analytics-kpi-label">
+            Active clients
+          </span>
+
+          <span className="uf-analytics-kpi-icon">
+            C
+          </span>
+        </div>
+
+        <h2>
+          {analytics?.activeClients || 0}
+        </h2>
 
         <p>
-          No-show sessions:
-          {" "}
-          {analytics?.noShowSessions || 0}
+          Clients currently active in your practice
         </p>
+      </article>
 
-        <p>
-          No-show rate:
-          {" "}
+      <article className="uf-analytics-kpi-card">
+        <div className="uf-analytics-kpi-top">
+          <span className="uf-analytics-kpi-label">
+            No-show rate
+          </span>
+
+          <span className="uf-analytics-kpi-icon">
+            %
+          </span>
+        </div>
+
+        <h2>
           {analytics?.noShowRate || 0}%
+        </h2>
+
+        <p>
+          Sessions marked as no-show
         </p>
-      </section>
-    </main>
-  );
+      </article>
+
+      <article className="uf-analytics-kpi-card">
+        <div className="uf-analytics-kpi-top">
+          <span className="uf-analytics-kpi-label">
+            Total sessions
+          </span>
+
+          <span className="uf-analytics-kpi-icon">
+            S
+          </span>
+        </div>
+
+        <h2>
+          {analytics?.totalSessions || 0}
+        </h2>
+
+        <p>
+          Completed and scheduled session activity
+        </p>
+      </article>
+    </section>
+
+    <section className="uf-analytics-chart-card">
+      <div className="uf-analytics-section-header">
+        <div>
+          <p className="uf-eyebrow">Revenue activity</p>
+
+          <h2>Revenue trend</h2>
+
+          <p className="uf-muted">
+            Track paid revenue across the available dates.
+          </p>
+        </div>
+      </div>
+
+      {revenueTrend.length === 0 ? (
+        <div className="uf-analytics-empty">
+          <div className="uf-analytics-empty-icon">
+            ₹
+          </div>
+
+          <h3>No revenue recorded yet</h3>
+
+          <p>
+            Paid revenue will appear here once completed payments
+            are recorded.
+          </p>
+        </div>
+      ) : (
+        <div className="uf-analytics-chart">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+            <LineChart
+              data={revenueTrend}
+              margin={{
+                top: 20,
+                right: 20,
+                left: 5,
+                bottom: 20,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis
+                dataKey="date"
+                tickFormatter={(value) =>
+                  new Date(value).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                    }
+                  )
+                }
+              />
+
+              <YAxis />
+
+              <Tooltip
+                formatter={(value) => [
+                  `₹${Number(value).toLocaleString(
+                    "en-IN"
+                  )}`,
+                  "Revenue",
+                ]}
+                labelFormatter={(label) =>
+                  new Date(label).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )
+                }
+              />
+
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                strokeWidth={3}
+                dot
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </section>
+
+    <section className="uf-analytics-summary-grid">
+      <article className="uf-analytics-summary-card">
+        <div className="uf-analytics-section-header">
+          <div>
+            <p className="uf-eyebrow">Session activity</p>
+            <h2>Session overview</h2>
+          </div>
+        </div>
+
+        <div className="uf-analytics-summary-rows">
+          <div className="uf-analytics-summary-row">
+            <span>Completed and scheduled</span>
+            <strong>
+              {analytics?.totalSessions || 0}
+            </strong>
+          </div>
+
+          <div className="uf-analytics-summary-row">
+            <span>No-show sessions</span>
+            <strong>
+              {analytics?.noShowSessions || 0}
+            </strong>
+          </div>
+
+          <div className="uf-analytics-summary-row">
+            <span>No-show rate</span>
+            <strong>
+              {analytics?.noShowRate || 0}%
+            </strong>
+          </div>
+        </div>
+      </article>
+
+      <article className="uf-analytics-summary-card uf-analytics-summary-highlight">
+        <div className="uf-analytics-section-header">
+          <div>
+            <p className="uf-eyebrow">Practice snapshot</p>
+            <h2>At a glance</h2>
+          </div>
+        </div>
+
+        <div className="uf-analytics-mini-metrics">
+          <div>
+            <span>Active clients</span>
+            <strong>
+              {analytics?.activeClients || 0}
+            </strong>
+          </div>
+
+          <div>
+            <span>Revenue</span>
+            <strong>
+              ₹
+              {Number(
+                analytics?.revenue || 0
+              ).toLocaleString("en-IN")}
+            </strong>
+          </div>
+        </div>
+
+        <p>
+          Use these metrics together to understand your
+          current practice activity.
+        </p>
+      </article>
+    </section>
+  </main>
+);
 }
 
 export default Analytics;

@@ -24,7 +24,7 @@ function Notes() {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState("");
   const [noteContent, setNoteContent] = useState("");
-  const [isClientVisible, setIsClientVisible] = useState(false);
+  const [noteType, setNoteType] = useState("private");
 
   const [notes, setNotes] = useState([]);
 
@@ -114,16 +114,16 @@ function Notes() {
     try {
       setSaving(true);
 
-      await axiosInstance.post("/session-notes", {
+     await axiosInstance.post("/session-notes", {
         sessionId: selectedSession,
         content: noteContent.trim(),
-        isClientVisible,
+        type: noteType,
         attachments: [],
-      });
+   });
 
       setMessage("Clinical note saved successfully.");
       setNoteContent("");
-      setIsClientVisible(false);
+      setNoteType("private");
 
       await loadNotesForSession(selectedSession);
     } catch (err) {
@@ -143,7 +143,7 @@ function Notes() {
   }
 
   return (
-    <div className="uf-page">
+   <div className="uf-page uf-notes-page">
       <div style={{ maxWidth: "900px" }}>
         <p className="uf-eyebrow">Clinical documentation</p>
 
@@ -276,25 +276,32 @@ function Notes() {
 </div>
  </div>
 
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginTop: "16px",
-                fontSize: "0.88rem",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isClientVisible}
-                onChange={(event) =>
-                  setIsClientVisible(event.target.checked)
-                }
-              />
+           <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginTop: "16px",
+    fontSize: "0.88rem",
+  }}
+>
+  <span style={{ fontWeight: 700 }}>
+    Note visibility
+  </span>
 
-              Make this note visible to the client
-            </label>
+  <select
+    value={noteType}
+    onChange={(event) => setNoteType(event.target.value)}
+    className="uf-input"
+    style={{
+      width: "auto",
+      minWidth: "150px",
+    }}
+  >
+    <option value="private">Private</option>
+    <option value="shared">Shared with client</option>
+  </select>
+</div>
 
             <button
               type="submit"
@@ -349,8 +356,8 @@ function Notes() {
                         fontSize: "0.82rem",
                       }}
                     >
-                      {note.isClientVisible
-                        ? "Client visible"
+                      {note.type === "shared"
+                         ? "Shared with client"
                         : "Private"}
                     </p>
                   </div>

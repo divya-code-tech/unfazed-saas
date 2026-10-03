@@ -5,11 +5,12 @@ import RazorpayPackageCheckout from "../../components/payment/RazorpayPackageChe
 import DOMPurify from "dompurify";
 import { useAuth } from "../../context/AuthContext";
 import ChatWindow from "../../components/chat/ChatWindow";
-
+import { useNavigate } from "react-router-dom";
 
 function ClientPortal() {
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [therapistId, setTherapistId] = useState("");
   const [date, setDate] = useState(() => {
   const today = new Date();
@@ -75,11 +76,10 @@ function ClientPortal() {
 
      setSessions(loadedSessions);
 
-     await loadMySessionNotes(loadedSessions);
+      await loadMySessionNotes(loadedSessions);
 
-     const sessionTherapistId =
-       loadedSessions[0]?.therapist?._id;
-
+      const sessionTherapistId =
+            loadedSessions[0]?.therapist?._id;
      if (sessionTherapistId) {
        setTherapistId(sessionTherapistId);
   }
@@ -612,521 +612,761 @@ const loadMyPackages = async () => {
   // UI
   // --------------------------------------------------
   return (
-    <div
-      style={{
-        padding: "30px",
-        maxWidth: "900px",
-        margin: "0 auto",
-      }}
-    >
-      <h1>Client Portal</h1>
+  <div className="uf-client-portal-page">
+    {/* =====================================================
+        PORTAL HEADER
+    ====================================================== */}
+    <header className="uf-client-portal-hero">
+      <div className="uf-client-portal-hero-status">
+         <span className="uf-client-portal-status-dot" />
 
-      <p>
-        Select a date and choose an available therapy
-        session.
-      </p>
+         <div>
+             <strong>Private client space</strong>
+             <span>Your information stays within your care journey.</span>
+         </div>
 
-      {/* ----------------------------------------------
-          SESSION LOADING
-      ---------------------------------------------- */}
-      {loadingSessions && (
-        <p>Loading your sessions...</p>
-      )}
+         <button
+             type="button"
+             className="uf-client-portal-logout"
+             onClick={() => {
+               logout();
+               navigate("/login");
+             }}
+      >
+    Logout
+  </button>
+</div>
+</header>
 
-      {/* ----------------------------------------------
-          DATE + AVAILABLE SLOTS
-      ---------------------------------------------- */}
-      <div style={{ marginBottom: "20px" }}>
-        <label htmlFor="appointment-date">
-          <strong>Date: </strong>
-        </label>
-
-        <input
-          id="appointment-date"
-          type="date"
-          value={date}
-          onChange={(event) =>
-            setDate(event.target.value)
-          }
-        />
-
-        <button
-          type="button"
-          onClick={loadSlots}
-          disabled={loadingSlots}
-          style={{ marginLeft: "10px" }}
-        >
-          {loadingSlots
-            ? "Loading..."
-            : "Find Available Slots"}
-        </button>
+    {/* =====================================================
+        GLOBAL FEEDBACK
+    ====================================================== */}
+    {message && (
+      <div className="uf-client-portal-feedback success">
+        <span>✓</span>
+        <p>{message}</p>
       </div>
+    )}
 
-{/* ----------------------------------------------
-          AVAILABLE SLOTS
----------------------------------------------- */}
-{
-slots.length > 0 && (
-   <div>
-     <h2>Available Slots</h2>
+    {error && (
+      <div className="uf-client-portal-feedback error">
+        <span>!</span>
+        <p>{error}</p>
+      </div>
+    )}
 
-    {
-    slots.map((slot) => {
-      const isSelected =
-      selectedSlot?.startTime === slot.startTime &&
-      selectedSlot?.endTime === slot.endTime;
+    {/* =====================================================
+        MAIN WORKSPACE
+    ====================================================== */}
+    <div className="uf-client-portal-layout">
+      <main className="uf-client-portal-main">
+        {/* =================================================
+            BOOK A SESSION
+        ================================================== */}
+        <section className="uf-client-portal-card uf-booking-card">
+          <div className="uf-client-portal-section-header">
+            <div className="uf-client-portal-section-title">
+              <div className="uf-client-portal-icon teal">◷</div>
 
-    return (
-      <button
-        key={`${slot.startTime}-${slot.endTime}`}
-        type="button"
-        onClick={() =>
-        setSelectedSlot(slot)
-         }
-           style={{
-           display: "block",
-           width: "100%",
-           maxWidth: "350px",
-           marginBottom: "10px",
-           padding: "12px",
-           cursor: "pointer",
-           fontWeight: isSelected
-           ? "bold"
-           : "normal",
-            }}
-            >
-            {slot.displayStart} →{" "}
-            {slot.displayEnd}
-            </button>
-            );
-          })}
-        </div>
-      )}
+              <div>
+                <span className="uf-client-portal-kicker">
+                  Appointments
+                </span>
+                <h2>Book a therapy session</h2>
+                <p>
+                  Choose a date and find an available time with your
+                  therapist.
+                </p>
+              </div>
+            </div>
 
-{/* ----------------------------------------------
-          NO SLOT
- ---------------------------------------------- */}
-      {!loadingSlots &&
-        slots.length === 0 &&
-        date && (
-          <p>
-            No available slots loaded for this date.
-          </p>
-        )}
-
-{/* ----------------------------------------------
-          SELECTED SLOT
----------------------------------------------- */}
-      {selectedSlot && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Selected Slot</h3>
-
-          <p>
-            {selectedSlot.displayStart} →{" "}
-            {selectedSlot.displayEnd}
-          </p>
-
-          <button
-            type="button"
-            onClick={bookSelectedSlot}
-            disabled={bookingLoading}
-          >
-            {bookingLoading
-              ? "Reserving..."
-              : "Reserve This Slot"}
-          </button>
-        </div>
-      )}
-
-{/* ----------------------------------------------
-    AVAILABLE PACKAGES
----------------------------------------------- */}
-<div style={{ marginTop: "40px" }}>
-  <h2>Available Packages</h2>
-
-  {loadingPackages ? (
-    <p>Loading available packages...</p>
-  ) : packages.length === 0 ? (
-    <p>No packages are currently available.</p>
-  ) : (
-    <div>
-      {packages.map((packageData) => (
-        <div
-          key={packageData._id}
-          style={{
-            marginTop: "15px",
-            padding: "18px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            maxWidth: "500px",
-          }}
-        >
-          <h3>{packageData.name}</h3>
-
-          {packageData.description && (
-            <p>{packageData.description}</p>
-          )}
-
-          <p>
-            Sessions:{" "}
-            <strong>{packageData.sessionCount}</strong>
-          </p>
-
-          <p>
-            Session duration:{" "}
-            <strong>
-              {packageData.sessionDuration} minutes
-            </strong>
-          </p>
-
-          <p>
-            Total price:{" "}
-            <strong>
-              ₹
-              {Number(packageData.price).toLocaleString(
-                "en-IN"
-              )}
-            </strong>
-          </p>
-
-          <p>
-            Per-session rate:{" "}
-            <strong>
-              ₹
-              {Number(
-                packageData.perSessionRate
-              ).toLocaleString("en-IN")}
-            </strong>
-          </p>
-
-          <p>
-            Valid for:{" "}
-            <strong>
-              {packageData.validityDays} days
-            </strong>
-          </p>
-
-          <RazorpayPackageCheckout
-            packageId={packageData._id}
-            amount={packageData.price}
-            onSuccess={handlePackagePaymentSuccess}
-         />
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-{/* ----------------------------------------------
-    MY PACKAGES
----------------------------------------------- */}
-<div style={{ marginTop: "40px" }}>
-  <h2>My Packages</h2>
-
-  {loadingMyPackages ? (
-    <p>Loading your packages...</p>
-  ) : myPackages.length === 0 ? (
-    <p>You don't have any purchased packages yet.</p>
-  ) : (
-    <div>
-      {myPackages.map((clientPackage) => (
-        <div
-          key={clientPackage._id}
-          style={{
-            marginTop: "15px",
-            padding: "18px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            maxWidth: "500px",
-          }}
-        >
-          <h3>
-            {clientPackage.package?.name ||
-              "Therapy Package"}
-          </h3>
-
-          <p>
-            Sessions purchased:{" "}
-            <strong>
-              {clientPackage.sessionsPurchased}
-            </strong>
-          </p>
-
-          <p>
-            Sessions used:{" "}
-            <strong>
-              {clientPackage.sessionsUsed}
-            </strong>
-          </p>
-
-          <p>
-            Sessions remaining:{" "}
-            <strong>
-              {clientPackage.sessionsRemaining}
-            </strong>
-          </p>
-
-          <p>
-            Purchased on:{" "}
-            <strong>
-              {formatDate(clientPackage.purchasedAt)}
-            </strong>
-          </p>
-
-          <p>
-            Expires on:{" "}
-            <strong>
-              {formatDate(clientPackage.expiresAt)}
-            </strong>
-          </p>
-
-          <p>
-            Status:{" "}
-            <strong>
-              {clientPackage.status}
-            </strong>
-          </p>
-
-          {clientPackage.payment?.status ===
-            "paid" && (
-            <button
-              type="button"
-              onClick={() =>
-                handleDownloadInvoice(
-                  clientPackage.payment._id
-                )
-              }
-            >
-              📄 Download Invoice
-            </button>
-          )}
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-{/* ----------------------------------------------
-          PAYMENT REQUIRED
----------------------------------------------- */}
-      {booking &&
-        booking.status === "pending_payment" && (
-          <div
-            style={{
-              marginTop: "30px",
-              padding: "20px",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-            }}
-          >
-            <h2>Payment Required</h2>
-
-            <p>
-              Date:{" "}
-              <strong>
-                {formatDate(booking.startTime)}
-              </strong>
-            </p>
-
-            <p>
-              Time:{" "}
-              <strong>
-                {formatTime(booking.startTime)} →{" "}
-                {formatTime(booking.endTime)}
-              </strong>
-            </p>
-
-            <p>
-              Session status:{" "}
-              <strong>{booking.status}</strong>
-            </p>
-
-            <p>
-              Amount:{" "}
-              <strong>
-                ₹
-                {Number(
-                 booking.payment?.amount ??
-                    booking.therapist?.sessionPrice
-                ).toLocaleString("en-IN")}
-              </strong>
-            </p>
-
-            {/* Razorpay payment button */}
-            <RazorpayCheckout
-              sessionId={booking._id}
-              amount={
-                 booking.payment?.amount ??
-                  booking.therapist?.sessionPrice
-              }
-              onSuccess={handlePaymentSuccess}
-            />
-
-            {paymentChecking && (
-              <p>
-                Checking payment confirmation...
-              </p>
+            {loadingSlots && (
+              <span className="uf-client-portal-status-pill">
+                Loading slots
+              </span>
             )}
           </div>
-        )}
 
-{/* ----------------------------------------------
-          MY SESSIONS
----------------------------------------------- */}
-  {
-      sessions.length > 0 && (
-        <div style={{ marginTop: "40px" }}>
-          <h2>My Sessions</h2>
+          <div className="uf-client-portal-booking-controls">
+            <div className="uf-client-portal-date-field">
+              <label htmlFor="appointment-date">
+                Select a date
+              </label>
 
-          {sessions.map((session) => (
-            <div
-              key={session._id}
-              style={{
-                marginBottom: "15px",
-                padding: "18px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-              }}
-            >
-          <h3>
-             {session.status === "confirmed"
-              ? "✅ Confirmed Session"
-              : session.status ===
-                 "pending_payment"
-                   ? "⏳ Payment Pending"
-                   : `Session: ${session.status}`}
-              </h3>
-
-              <p>
-                Date:{" "}
-                <strong>
-                  {formatDate(session.startTime)}
-                </strong>
-              </p>
-
-              <p>
-                Time:{" "}
-                <strong>
-                  {formatTime(session.startTime)} →{" "}
-                  {formatTime(session.endTime)}
-                </strong>
-              </p>
-
-              <p>
-                Status:{" "}
-                <strong>{session.status}</strong>
-              </p>
-
-              <p>
-                Amount:{" "}
-                <strong>
-                  ₹
-                  {Number(
-                    session.payment?.amount ??
-                      session.therapist?.sessionPrice
-                  ).toLocaleString("en-IN")}
-                </strong>
-              </p>
-
-              {/* Invoice is available only for
-                  confirmed paid sessions */}
-              {session.status === "confirmed" &&
-                session.payment?.status === "paid" && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleDownloadInvoice(
-                        session.payment._id
-                      )
-                    }
-                  >
-                    📄 Download Invoice
-                  </button>
-                )}
+              <input
+                id="appointment-date"
+                type="date"
+                value={date}
+                onChange={(event) =>
+                  setDate(event.target.value)
+                }
+              />
             </div>
-          ))}
-        </div>
-      )}
 
- {/* ----------------------------------------------
-          CLINICAL NOTES
----------------------------------------------- */}
-{sessionNotes.length > 0 && (
-  <div style={{ marginTop: "40px" }}>
-    <h2>Clinical Notes</h2>
+            <button
+              type="button"
+              className="uf-client-portal-primary-button"
+              onClick={loadSlots}
+              disabled={loadingSlots}
+            >
+              {loadingSlots
+                ? "Finding available times..."
+                : "Find available times"}
+            </button>
+          </div>
 
-    {sessionNotes.map((note) => (
-      <div
-        key={note._id}
-        style={{
-          marginBottom: "15px",
-          padding: "18px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-        }}
-      >
-        <p>
-          <strong>Session Date:</strong>{" "}
-          {note.session?.startTime
-            ? formatDate(note.session.startTime)
-            : "N/A"}
-        </p>
+          {loadingSessions && (
+            <div className="uf-client-portal-inline-loading">
+              <span className="uf-client-portal-loading-dot" />
+              <p>Loading your sessions...</p>
+            </div>
+          )}
 
-        <p>
-          <strong>Note:</strong>
-        </p>
+          {slots.length > 0 && (
+            <div className="uf-client-portal-slot-area">
+              <div className="uf-client-portal-subheading">
+                <div>
+                  <h3>Available times</h3>
+                  <p>Select one time to continue.</p>
+                </div>
 
-        <div
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(note.content),
-          }}
-        />
-      </div>
-    ))}
-  </div>
-)}
+                <span>{slots.length} available</span>
+              </div>
 
-{/* ----------------------------------------------
-          EMPTY SESSION STATE
----------------------------------------------- */}
-      {!loadingSessions &&
-        sessions.length === 0 && (
-          <p style={{ marginTop: "30px" }}>
-            You don't have any sessions yet.
-          </p>
-        )}
+              <div className="uf-client-portal-slot-grid">
+                {slots.map((slot) => {
+                  const isSelected =
+                    selectedSlot?.startTime === slot.startTime &&
+                    selectedSlot?.endTime === slot.endTime;
 
-{/* ----------------------------------------------
-          CHAT
----------------------------------------------- */}
-      <hr />
+                  return (
+                    <button
+                      key={`${slot.startTime}-${slot.endTime}`}
+                      type="button"
+                      className={`uf-client-portal-slot ${
+                        isSelected ? "selected" : ""
+                      }`}
+                      onClick={() => setSelectedSlot(slot)}
+                    >
+                      <span className="uf-client-portal-slot-icon">
+                        ◷
+                      </span>
 
-      <div style={{ marginTop: "40px" }}>
-        <h2>Chat with your Therapist</h2>
+                      <span className="uf-client-portal-slot-copy">
+                        <strong>{slot.displayStart}</strong>
+                        <small>
+                          until {slot.displayEnd}
+                        </small>
+                      </span>
 
-        <ChatWindow
-          clientId={user?.id}
-          currentUserId={user?.id}
-        />
-      </div>
+                      {isSelected && (
+                        <span className="uf-client-portal-slot-check">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
+          {!loadingSlots &&
+            slots.length === 0 &&
+            date && (
+              <div className="uf-client-portal-empty uf-client-portal-empty-booking">
+                <div className="uf-client-portal-empty-icon">
+                  ◌
+                </div>
+                <div>
+                  <h3>No times loaded yet</h3>
+                  <p>
+                    Choose a date above and select “Find available
+                    times” to see your therapist's open slots.
+                  </p>
+                </div>
+              </div>
+            )}
 
-      {/* ----------------------------------------------
-          MESSAGES / ERRORS
-      ---------------------------------------------- */}
-      {message && (
-        <p style={{ marginTop: "20px" }}>
-          {message}
-        </p>
-      )}
+          {selectedSlot && (
+            <div className="uf-client-portal-selection">
+              <div className="uf-client-portal-selection-copy">
+                <span>Selected appointment</span>
+                <strong>
+                  {selectedSlot.displayStart} →{" "}
+                  {selectedSlot.displayEnd}
+                </strong>
+              </div>
 
-      {error && (
-        <p style={{ marginTop: "20px" }}>
-          {error}
-        </p>
-      )}
+              <button
+                type="button"
+                className="uf-client-portal-dark-button"
+                onClick={bookSelectedSlot}
+                disabled={bookingLoading}
+              >
+                {bookingLoading
+                  ? "Reserving..."
+                  : "Reserve this time"}
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* =================================================
+            PAYMENT REQUIRED
+        ================================================== */}
+        {booking &&
+          booking.status === "pending_payment" && (
+            <section className="uf-client-portal-card uf-payment-card">
+              <div className="uf-client-portal-section-header">
+                <div className="uf-client-portal-section-title">
+                  <div className="uf-client-portal-icon warm">₹</div>
+
+                  <div>
+                    <span className="uf-client-portal-kicker">
+                      One step left
+                    </span>
+                    <h2>Complete your payment</h2>
+                    <p>
+                      Your appointment is reserved until payment is
+                      confirmed.
+                    </p>
+                  </div>
+                </div>
+
+                <span className="uf-client-portal-warning-pill">
+                  Payment pending
+                </span>
+              </div>
+
+              <div className="uf-client-portal-payment-summary">
+                <div>
+                  <span>Date</span>
+                  <strong>
+                    {formatDate(booking.startTime)}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Time</span>
+                  <strong>
+                    {formatTime(booking.startTime)} →{" "}
+                    {formatTime(booking.endTime)}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Amount</span>
+                  <strong>
+                    ₹
+                    {Number(
+                      booking.payment?.amount ??
+                        booking.therapist?.sessionPrice
+                    ).toLocaleString("en-IN")}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="uf-client-portal-payment-action">
+                <RazorpayCheckout
+                  sessionId={booking._id}
+                  amount={
+                    booking.payment?.amount ??
+                    booking.therapist?.sessionPrice
+                  }
+                  onSuccess={handlePaymentSuccess}
+                />
+
+                {paymentChecking && (
+                  <div className="uf-client-portal-payment-checking">
+                    <span>◷</span>
+                    Checking payment confirmation...
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+        {/* =================================================
+            AVAILABLE PACKAGES
+        ================================================== */}
+        <section className="uf-client-portal-card">
+          <div className="uf-client-portal-section-header">
+            <div className="uf-client-portal-section-title">
+              <div className="uf-client-portal-icon lavender">
+                ▣
+              </div>
+
+              <div>
+                <span className="uf-client-portal-kicker">
+                  Flexible care
+                </span>
+                <h2>Therapy packages</h2>
+                <p>
+                  Explore package options and choose a plan that fits
+                  your ongoing sessions.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {loadingPackages ? (
+            <div className="uf-client-portal-inline-loading">
+              <span className="uf-client-portal-loading-dot" />
+              <p>Loading available packages...</p>
+            </div>
+          ) : packages.length === 0 ? (
+            <div className="uf-client-portal-empty">
+              <div className="uf-client-portal-empty-icon">
+                ◫
+              </div>
+              <div>
+                <h3>No packages available</h3>
+                <p>
+                  There are no active therapy packages available at
+                  the moment.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="uf-client-portal-package-grid">
+              {packages.map((packageData) => (
+                <article
+                  key={packageData._id}
+                  className="uf-client-portal-package-card"
+                >
+                  <div className="uf-client-portal-package-top">
+                    <div className="uf-client-portal-package-icon">
+                      ✦
+                    </div>
+
+                    <span className="uf-client-portal-package-badge">
+                      {packageData.sessionCount} sessions
+                    </span>
+                  </div>
+
+                  <h3>{packageData.name}</h3>
+
+                  {packageData.description && (
+                    <p className="uf-client-portal-package-description">
+                      {packageData.description}
+                    </p>
+                  )}
+
+                  <div className="uf-client-portal-package-price">
+                    <strong>
+                      ₹
+                      {Number(packageData.price).toLocaleString(
+                        "en-IN"
+                      )}
+                    </strong>
+                    <span>total</span>
+                  </div>
+
+                  <div className="uf-client-portal-package-details">
+                    <div>
+                      <span>Session length</span>
+                      <strong>
+                        {packageData.sessionDuration} min
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Per session</span>
+                      <strong>
+                        ₹
+                        {Number(
+                          packageData.perSessionRate
+                        ).toLocaleString("en-IN")}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Valid for</span>
+                      <strong>
+                        {packageData.validityDays} days
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="uf-client-portal-package-action">
+                    <RazorpayPackageCheckout
+                      packageId={packageData._id}
+                      amount={packageData.price}
+                      onSuccess={handlePackagePaymentSuccess}
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* =================================================
+            MY SESSIONS
+        ================================================== */}
+        <section className="uf-client-portal-card">
+          <div className="uf-client-portal-section-header">
+            <div className="uf-client-portal-section-title">
+              <div className="uf-client-portal-icon sage">✓</div>
+
+              <div>
+                <span className="uf-client-portal-kicker">
+                  Your schedule
+                </span>
+                <h2>My sessions</h2>
+                <p>
+                  Keep track of upcoming and previous therapy
+                  appointments.
+                </p>
+              </div>
+            </div>
+
+            <span className="uf-client-portal-count-pill">
+              {sessions.length}{" "}
+              {sessions.length === 1 ? "session" : "sessions"}
+            </span>
+          </div>
+
+          {sessions.length > 0 ? (
+            <div className="uf-client-portal-session-list">
+              {sessions.map((session) => (
+                <article
+                  key={session._id}
+                  className="uf-client-portal-session-card"
+                >
+                  <div
+                    className={`uf-client-portal-session-mark ${
+                      session.status === "confirmed"
+                        ? "confirmed"
+                        : "pending"
+                    }`}
+                  >
+                    {session.status === "confirmed"
+                      ? "✓"
+                      : "◷"}
+                  </div>
+
+                  <div className="uf-client-portal-session-main">
+                    <div className="uf-client-portal-session-heading">
+                      <div>
+                        <span>
+                          {session.status === "confirmed"
+                            ? "Confirmed session"
+                            : session.status ===
+                              "pending_payment"
+                            ? "Payment pending"
+                            : "Therapy session"}
+                        </span>
+
+                        <h3>
+                          {formatDate(session.startTime)}
+                        </h3>
+                      </div>
+
+                      <span
+                        className={`uf-client-portal-session-status ${
+                          session.status === "confirmed"
+                            ? "confirmed"
+                            : "pending"
+                        }`}
+                      >
+                        {session.status === "confirmed"
+                          ? "Confirmed"
+                          : session.status ===
+                            "pending_payment"
+                          ? "Payment pending"
+                          : session.status}
+                      </span>
+                    </div>
+
+                    <div className="uf-client-portal-session-meta">
+                      <span>
+                        ◷ {formatTime(session.startTime)} →{" "}
+                        {formatTime(session.endTime)}
+                      </span>
+
+                      <span>
+                        ₹
+                        {Number(
+                          session.payment?.amount ??
+                            session.therapist?.sessionPrice
+                        ).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {session.status === "confirmed" &&
+                    session.payment?.status === "paid" && (
+                      <button
+                        type="button"
+                        className="uf-client-portal-outline-button"
+                        onClick={() =>
+                          handleDownloadInvoice(
+                            session.payment._id
+                          )
+                        }
+                      >
+                        <span>↧</span>
+                        Invoice
+                      </button>
+                    )}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="uf-client-portal-empty">
+              <div className="uf-client-portal-empty-icon">
+                ◷
+              </div>
+              <div>
+                <h3>No sessions yet</h3>
+                <p>
+                  Your booked therapy sessions will appear here.
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* =================================================
+            SHARED CLINICAL NOTES
+        ================================================== */}
+        <section className="uf-client-portal-card">
+          <div className="uf-client-portal-section-header">
+            <div className="uf-client-portal-section-title">
+              <div className="uf-client-portal-icon plum">
+                ✎
+              </div>
+
+              <div>
+                <span className="uf-client-portal-kicker">
+                  Shared with you
+                </span>
+                <h2>Clinical notes</h2>
+                <p>
+                  Notes your therapist has chosen to make visible to
+                  you.
+                </p>
+              </div>
+            </div>
+
+            <span className="uf-client-portal-private-pill">
+              Shared notes only
+            </span>
+          </div>
+
+          {sessionNotes.length > 0 ? (
+            <div className="uf-client-portal-notes-grid">
+              {sessionNotes.map((note) => (
+                <article
+                  key={note._id}
+                  className="uf-client-portal-note-card"
+                >
+                  <div className="uf-client-portal-note-header">
+                    <div>
+                      <span>Session note</span>
+                      <strong>
+                        {note.session?.startTime
+                          ? formatDate(note.session.startTime)
+                          : "Session date unavailable"}
+                      </strong>
+                    </div>
+
+                    <span className="uf-client-portal-note-badge">
+                      Shared
+                    </span>
+                  </div>
+
+                  <div className="uf-client-portal-note-divider" />
+
+                  <div
+                    className="uf-client-portal-note-content"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        note.content
+                      ),
+                    }}
+                  />
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="uf-client-portal-empty">
+              <div className="uf-client-portal-empty-icon">
+                ✎
+              </div>
+              <div>
+                <h3>No shared notes yet</h3>
+                <p>
+                  Shared clinical notes from your therapist will
+                  appear here when available.
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* ===================================================
+          RIGHT SIDEBAR
+      ==================================================== */}
+      <aside className="uf-client-portal-sidebar">
+        {/* =================================================
+            MY PACKAGES
+        ================================================== */}
+        <section className="uf-client-portal-card uf-client-portal-mini-card">
+          <div className="uf-client-portal-mini-heading">
+            <div>
+              <span className="uf-client-portal-kicker">
+                Your care plan
+              </span>
+              <h2>My packages</h2>
+            </div>
+
+            <div className="uf-client-portal-mini-icon">
+              ▣
+            </div>
+          </div>
+
+          {loadingMyPackages ? (
+            <div className="uf-client-portal-inline-loading compact">
+              <span className="uf-client-portal-loading-dot" />
+              <p>Loading packages...</p>
+            </div>
+          ) : myPackages.length === 0 ? (
+            <div className="uf-client-portal-sidebar-empty">
+              <p>
+                You don't have any purchased packages yet.
+              </p>
+            </div>
+          ) : (
+            <div className="uf-client-portal-my-package-list">
+              {myPackages.map((clientPackage) => (
+                <article
+                  key={clientPackage._id}
+                  className="uf-client-portal-my-package"
+                >
+                  <div className="uf-client-portal-my-package-top">
+                    <div>
+                      <span>Package</span>
+                      <h3>
+                        {clientPackage.package?.name ||
+                          "Therapy Package"}
+                      </h3>
+                    </div>
+
+                    <span className="uf-client-portal-package-status">
+                      {clientPackage.status}
+                    </span>
+                  </div>
+
+                  <div className="uf-client-portal-progress">
+                    <div className="uf-client-portal-progress-top">
+                      <span>Sessions remaining</span>
+                      <strong>
+                        {clientPackage.sessionsRemaining}
+                      </strong>
+                    </div>
+
+                    <div className="uf-client-portal-progress-track">
+                      <div
+                        className="uf-client-portal-progress-fill"
+                        style={{
+                          width: `${
+                            clientPackage.sessionsPurchased > 0
+                              ? Math.min(
+                                  100,
+                                  (clientPackage.sessionsRemaining /
+                                    clientPackage.sessionsPurchased) *
+                                    100
+                                )
+                              : 0
+                          }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="uf-client-portal-my-package-meta">
+                    <span>
+                      {clientPackage.sessionsUsed} used
+                    </span>
+
+                    <span>
+                      Expires{" "}
+                      {formatDate(clientPackage.expiresAt)}
+                    </span>
+                  </div>
+
+                  {clientPackage.payment?.status === "paid" && (
+                    <button
+                      type="button"
+                      className="uf-client-portal-text-button"
+                      onClick={() =>
+                        handleDownloadInvoice(
+                          clientPackage.payment._id
+                        )
+                      }
+                    >
+                      Download invoice ↗
+                    </button>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* =================================================
+            CHAT
+        ================================================== */}
+        <section className="uf-client-portal-card uf-client-portal-chat-card">
+          <div className="uf-client-portal-chat-heading">
+            <div>
+              <span className="uf-client-portal-kicker">
+                Stay connected
+              </span>
+              <h2>Chat with your therapist</h2>
+              <p>
+                Send messages securely from your private care space.
+              </p>
+            </div>
+
+            <div className="uf-client-portal-chat-live">
+              <span />
+              Live
+            </div>
+          </div>
+
+          <div className="uf-client-portal-chat-body">
+            <ChatWindow
+              clientId={user?.id}
+              currentUserId={user?.id}
+            />
+          </div>
+        </section>
+
+        {/* =================================================
+            PRIVACY NOTE
+        ================================================== */}
+        <section className="uf-client-portal-privacy">
+          <div className="uf-client-portal-privacy-icon">
+            🔒
+          </div>
+
+          <div>
+            <strong>Your care space is private</strong>
+            <p>
+              Only information intentionally shared with you is
+              displayed in this portal.
+            </p>
+          </div>
+        </section>
+      </aside>
     </div>
-  );
+  </div>
+);
 }
 
 export default ClientPortal;

@@ -510,423 +510,476 @@ const [blockedSaving, setBlockedSaving] = useState(false);
     );
   };
 
-  return (
-    <div>
-      <h1>Schedule</h1>
+   return (
+    <div className="uf-schedule-page">
+      {/* =====================================================
+          PAGE HEADER
+      ====================================================== */}
+      <section className="uf-page-header uf-schedule-header">
+        <div>
+          <span className="uf-eyebrow">Practice calendar</span>
 
-      <p>
-        Set your weekly availability so clients can
-        book sessions with you.
-      </p>
+          <h1>Schedule</h1>
 
+          <p>
+            Shape your availability, manage booking windows,
+            and keep your upcoming sessions organized.
+          </p>
+        </div>
+
+        <div className="uf-schedule-header-badge">
+          <span className="uf-schedule-header-dot" />
+          <div>
+            <strong>Availability</strong>
+            <span>Your booking hours</span>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          MESSAGES
+      ====================================================== */}
       {message && (
-        <p style={{ color: "green" }}>
-          {message}
-        </p>
+        <div className="uf-schedule-alert success">
+          <span>✓</span>
+          <p>{message}</p>
+        </div>
       )}
 
       {error && (
-        <p style={{ color: "crimson" }}>
-          {error}
-        </p>
+        <div className="uf-schedule-alert error">
+          <span>!</span>
+          <p>{error}</p>
+        </div>
       )}
 
-      {/* =========================
-          WEEKLY AVAILABILITY
-      ========================= */}
+      {/* =====================================================
+          AVAILABILITY SETUP
+      ====================================================== */}
+      <section className="uf-schedule-builder">
+        <div className="uf-schedule-builder-intro">
+          <div className="uf-schedule-section-icon">◷</div>
 
-      <form onSubmit={handleSave}>
-        <h2>Weekly Availability</h2>
+          <div>
+            <span className="uf-section-kicker">
+              Booking setup
+            </span>
 
-        <div>
-          <label>
-            Day
-            <br />
+            <h2>Set your availability</h2>
 
-            <select
-              value={dayOfWeek}
-              onChange={(event) =>
-                setDayOfWeek(
-                  Number(event.target.value)
-                )
-              }
-            >
-              {DAYS.map((day) => (
-                <option
-                  key={day.value}
-                  value={day.value}
-                >
-                  {day.label}
-                </option>
-              ))}
-            </select>
-          </label>
+            <p>
+              Create the regular hours clients can book with
+              you each week.
+            </p>
+          </div>
         </div>
 
-        <br />
-
-        <div>
-          <label>
-            Start time
-            <br />
-
-            <input
-              type="time"
-              value={startTime}
-              onChange={(event) =>
-                setStartTime(event.target.value)
-              }
-            />
-          </label>
-        </div>
-
-        <br />
-
-        <div>
-          <label>
-            End time
-            <br />
-
-            <input
-              type="time"
-              value={endTime}
-              onChange={(event) =>
-                setEndTime(event.target.value)
-              }
-            />
-          </label>
-        </div>
-
-        <br />
-
-        <div>
-          <label>
-            Session duration
-            <br />
-
-            <select
-              value={duration}
-              onChange={(event) =>
-                setDuration(
-                  Number(event.target.value)
-                )
-              }
-            >
-              {DURATIONS.map((minutes) => (
-                <option
-                  key={minutes}
-                  value={minutes}
-                >
-                  {minutes} minutes
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <br />
-
-        <div>
-          <label>
-            Buffer between sessions
-            <br />
-
-            <select
-              value={bufferTime}
-              onChange={(event) =>
-                setBufferTime(
-                  Number(event.target.value)
-                )
-              }
-            >
-              <option value={0}>
-                No buffer
-              </option>
-
-              <option value={5}>
-                5 minutes
-              </option>
-
-              <option value={10}>
-                10 minutes
-              </option>
-
-              <option value={15}>
-                15 minutes
-              </option>
-
-              <option value={30}>
-                30 minutes
-              </option>
-            </select>
-          </label>
-        </div>
-
-        <br />
-
-        <button
-          type="submit"
-          disabled={saving}
+        <form
+          className="uf-schedule-form"
+          onSubmit={handleSave}
         >
-          {saving
-            ? "Saving..."
-            : "Add Availability"}
-        </button>
-      </form>
+          <div className="uf-schedule-form-grid">
+            <label className="uf-schedule-field">
+              <span>Day</span>
 
-      <hr />
-
-      {/* =========================
-          ONE-TIME AVAILABILITY
-      ========================= */}
-
-      <h2>One-Time Availability</h2>
-
-      <p>
-        Add a date-specific availability period
-        for a single day.
-      </p>
-
-      <form onSubmit={handleAddOverride}>
-        <div>
-          <label>
-            Date
-            <br />
-
-            <input
-              type="date"
-              value={overrideDate}
-              onChange={(event) =>
-                setOverrideDate(
-                  event.target.value
-                )
-              }
-            />
-          </label>
-        </div>
-
-        <br />
-
-        <div>
-          <label>
-            Start time
-            <br />
-
-            <input
-              type="time"
-              value={overrideStartTime}
-              onChange={(event) =>
-                setOverrideStartTime(
-                  event.target.value
-                )
-              }
-            />
-          </label>
-        </div>
-
-        <br />
-
-        <div>
-          <label>
-            End time
-            <br />
-
-            <input
-              type="time"
-              value={overrideEndTime}
-              onChange={(event) =>
-                setOverrideEndTime(
-                  event.target.value
-                )
-              }
-            />
-          </label>
-        </div>
-
-        <br />
-
-        <button
-          type="submit"
-          disabled={overrideSaving}
-        >
-          {overrideSaving
-            ? "Saving..."
-            : "Add One-Time Availability"}
-        </button>
-      </form>
-
-      <hr />
-
-      <h2>Blocked Time</h2>
-
-<p>
-  Block a specific time so clients cannot book during that period.
-</p>
-
-<form onSubmit={handleAddBlockedSlot}>
-  <div>
-    <label>
-      Date
-      <br />
-      <input
-        type="date"
-        value={blockedDate}
-        onChange={(event) =>
-          setBlockedDate(event.target.value)
-        }
-      />
-    </label>
-  </div>
-
-  <br />
-
-  <div>
-    <label>
-      Start time
-      <br />
-      <input
-        type="time"
-        value={blockedStartTime}
-        onChange={(event) =>
-          setBlockedStartTime(event.target.value)
-        }
-      />
-    </label>
-  </div>
-
-  <br />
-
-  <div>
-    <label>
-      End time
-      <br />
-      <input
-        type="time"
-        value={blockedEndTime}
-        onChange={(event) =>
-          setBlockedEndTime(event.target.value)
-        }
-      />
-    </label>
-  </div>
-
-  <br />
-
-  <button
-    type="submit"
-    disabled={blockedSaving}
-  >
-    {blockedSaving ? "Blocking..." : "Block This Time"}
-  </button>
-</form>
-
-<hr />
-
-<h2>Upcoming Appointments</h2>
-
-{sessions.length === 0 ? (
-  <p>No upcoming appointments yet.</p>
-) : (
-  <div
-    style={{
-      display: "grid",
-      gap: "12px",
-      marginTop: "16px",
-    }}
-  >
-    {sessions.map((session) => (
-       <div
-         key={session._id}
-         style={{
-         padding: "18px",
-         border: "1px solid #e5e7eb",
-         borderRadius: "12px",
-         backgroundColor: "#ffffff",
-         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-      }}
->
-          <strong
-            style={{
-                fontSize: "17px",
-                color: "#1f2937",
-          }}
-        >
-           {session.client?.name || "Client"}
-        </strong>
-
-
-          <p style={{ margin: "8px 0 4px" }}>
-            📅{" "}
-            {new Date(session.startTime).toLocaleDateString()}
-          </p>
-
-          <p style={{ margin: "4px 0" }}>
-            🕐{" "}
-            {new Date(session.startTime).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}{" "}
-            –{" "}
-            {new Date(session.endTime).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-
- <p style={{ margin: "8px 0 0" }}>
-   Status:{" "}
-   <strong
-     style={{
-       textTransform: "capitalize",
-       color: "#2563eb",
-    }}
-  >
-    {session.status.replace("_", " ")}
-  </strong>
-</p>
-      </div>
-      ))}
-  </div>
-)}
-
-<hr />
-
-      {/* ===============================
-          CURRENT ONE-TIME AVAILABILITY
-         ================================= */}
-
-      <h2>Current One-Time Availability</h2>
-
-      {availabilities.filter(
-        (item) => item.type === "override"
-      ).length === 0 ? (
-        <p>
-          No one-time availability added yet.
-        </p>
-      ) : (
-        <ul>
-          {availabilities
-            .filter(
-              (item) => item.type === "override"
-            )
-            .map((item) => (
-              <li key={item._id}>
-                {editingOverrideId === item._id ? (
-                  <form
-                    onSubmit={
-                      handleUpdateOverride
-                    }
+              <select
+                value={dayOfWeek}
+                onChange={(event) =>
+                  setDayOfWeek(Number(event.target.value))
+                }
+              >
+                {DAYS.map((day) => (
+                  <option
+                    key={day.value}
+                    value={day.value}
                   >
-                    <div>
-                      <label>
-                        Date
-                        <br />
+                    {day.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="uf-schedule-field">
+              <span>Start time</span>
+
+              <input
+                type="time"
+                value={startTime}
+                onChange={(event) =>
+                  setStartTime(event.target.value)
+                }
+              />
+            </label>
+
+            <label className="uf-schedule-field">
+              <span>End time</span>
+
+              <input
+                type="time"
+                value={endTime}
+                onChange={(event) =>
+                  setEndTime(event.target.value)
+                }
+              />
+            </label>
+
+            <label className="uf-schedule-field">
+              <span>Session duration</span>
+
+              <select
+                value={duration}
+                onChange={(event) =>
+                  setDuration(Number(event.target.value))
+                }
+              >
+                {DURATIONS.map((minutes) => (
+                  <option
+                    key={minutes}
+                    value={minutes}
+                  >
+                    {minutes} minutes
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="uf-schedule-field">
+              <span>Buffer between sessions</span>
+
+              <select
+                value={bufferTime}
+                onChange={(event) =>
+                  setBufferTime(Number(event.target.value))
+                }
+              >
+                <option value={0}>No buffer</option>
+                <option value={5}>5 minutes</option>
+                <option value={10}>10 minutes</option>
+                <option value={15}>15 minutes</option>
+                <option value={30}>30 minutes</option>
+              </select>
+            </label>
+
+            <div className="uf-schedule-form-action">
+              <button
+                type="submit"
+                className="uf-schedule-primary-button"
+                disabled={saving}
+              >
+                {saving
+                  ? "Saving..."
+                  : "Add availability"}
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      {/* =====================================================
+          SPECIAL AVAILABILITY
+      ====================================================== */}
+      <section className="uf-schedule-special-grid">
+        {/* One-time availability */}
+        <article className="uf-schedule-card">
+          <div className="uf-schedule-card-heading">
+            <div className="uf-schedule-card-icon rose">
+              +
+            </div>
+
+            <div>
+              <h2>One-time availability</h2>
+
+              <p>
+                Open a special booking window for a
+                particular date.
+              </p>
+            </div>
+          </div>
+
+          <form
+            className="uf-schedule-card-form"
+            onSubmit={handleAddOverride}
+          >
+            <label className="uf-schedule-field">
+              <span>Date</span>
+
+              <input
+                type="date"
+                value={overrideDate}
+                onChange={(event) =>
+                  setOverrideDate(event.target.value)
+                }
+              />
+            </label>
+
+            <div className="uf-schedule-two-fields">
+              <label className="uf-schedule-field">
+                <span>Start</span>
+
+                <input
+                  type="time"
+                  value={overrideStartTime}
+                  onChange={(event) =>
+                    setOverrideStartTime(
+                      event.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label className="uf-schedule-field">
+                <span>End</span>
+
+                <input
+                  type="time"
+                  value={overrideEndTime}
+                  onChange={(event) =>
+                    setOverrideEndTime(
+                      event.target.value
+                    )
+                  }
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="uf-schedule-secondary-button"
+              disabled={overrideSaving}
+            >
+              {overrideSaving
+                ? "Saving..."
+                : "Add one-time availability"}
+            </button>
+          </form>
+        </article>
+
+        {/* Blocked time */}
+        <article className="uf-schedule-card">
+          <div className="uf-schedule-card-heading">
+            <div className="uf-schedule-card-icon dark">
+              −
+            </div>
+
+            <div>
+              <h2>Blocked time</h2>
+
+              <p>
+                Prevent clients from booking a specific
+                time period.
+              </p>
+            </div>
+          </div>
+
+          <form
+            className="uf-schedule-card-form"
+            onSubmit={handleAddBlockedSlot}
+          >
+            <label className="uf-schedule-field">
+              <span>Date</span>
+
+              <input
+                type="date"
+                value={blockedDate}
+                onChange={(event) =>
+                  setBlockedDate(event.target.value)
+                }
+              />
+            </label>
+
+            <div className="uf-schedule-two-fields">
+              <label className="uf-schedule-field">
+                <span>Start</span>
+
+                <input
+                  type="time"
+                  value={blockedStartTime}
+                  onChange={(event) =>
+                    setBlockedStartTime(
+                      event.target.value
+                    )
+                  }
+                />
+              </label>
+
+              <label className="uf-schedule-field">
+                <span>End</span>
+
+                <input
+                  type="time"
+                  value={blockedEndTime}
+                  onChange={(event) =>
+                    setBlockedEndTime(
+                      event.target.value
+                    )
+                  }
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="uf-schedule-dark-button"
+              disabled={blockedSaving}
+            >
+              {blockedSaving
+                ? "Blocking..."
+                : "Block this time"}
+            </button>
+          </form>
+        </article>
+      </section>
+
+      {/* =====================================================
+          UPCOMING APPOINTMENTS
+      ====================================================== */}
+      <section className="uf-schedule-list-section">
+        <div className="uf-schedule-list-heading">
+          <div>
+            <span className="uf-section-kicker">
+              Your calendar
+            </span>
+
+            <h2>Upcoming appointments</h2>
+
+            <p>
+              Sessions currently scheduled with your
+              clients.
+            </p>
+          </div>
+
+          <div className="uf-schedule-count">
+            {sessions.length}
+            <span>
+              {sessions.length === 1
+                ? "session"
+                : "sessions"}
+            </span>
+          </div>
+        </div>
+
+        {sessions.length === 0 ? (
+          <div className="uf-schedule-empty">
+            <div className="uf-schedule-empty-icon">
+              ◷
+            </div>
+
+            <h3>No upcoming appointments</h3>
+
+            <p>
+              Your scheduled client sessions will appear
+              here.
+            </p>
+          </div>
+        ) : (
+          <div className="uf-appointment-grid">
+            {sessions.map((session) => (
+              <article
+                key={session._id}
+                className="uf-appointment-card"
+              >
+                <div className="uf-appointment-top">
+                  <div className="uf-appointment-avatar">
+                    {session.client?.name
+                      ?.charAt(0)
+                      .toUpperCase() || "C"}
+                  </div>
+
+                  <span className="uf-appointment-status">
+                    {session.status.replace("_", " ")}
+                  </span>
+                </div>
+
+                <div className="uf-appointment-client">
+                  <h3>
+                    {session.client?.name || "Client"}
+                  </h3>
+
+                  <p>Therapy session</p>
+                </div>
+
+                <div className="uf-appointment-details">
+                  <div>
+                    <span>DATE</span>
+                    <strong>
+                      {new Date(
+                        session.startTime
+                      ).toLocaleDateString()}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>TIME</span>
+                    <strong>
+                      {new Date(
+                        session.startTime
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      {" – "}
+                      {new Date(
+                        session.endTime
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </strong>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* =====================================================
+          CURRENT ONE-TIME AVAILABILITY
+      ====================================================== */}
+      <section className="uf-schedule-list-section">
+        <div className="uf-schedule-list-heading">
+          <div>
+            <span className="uf-section-kicker">
+              Special hours
+            </span>
+
+            <h2>Current one-time availability</h2>
+
+            <p>
+              Date-specific booking windows currently
+              available to clients.
+            </p>
+          </div>
+        </div>
+
+        {availabilities.filter(
+          (item) => item.type === "override"
+        ).length === 0 ? (
+          <div className="uf-schedule-inline-empty">
+            No one-time availability added yet.
+          </div>
+        ) : (
+          <div className="uf-availability-list">
+            {availabilities
+              .filter(
+                (item) => item.type === "override"
+              )
+              .map((item) => (
+                <article
+                  key={item._id}
+                  className="uf-availability-row"
+                >
+                  {editingOverrideId === item._id ? (
+                    <form
+                      className="uf-edit-availability"
+                      onSubmit={handleUpdateOverride}
+                    >
+                      <label className="uf-schedule-field">
+                        <span>Date</span>
 
                         <input
                           type="date"
-                          value={
-                            editingOverrideDate
-                          }
+                          value={editingOverrideDate}
                           onChange={(event) =>
                             setEditingOverrideDate(
                               event.target.value
@@ -935,23 +988,16 @@ const [blockedSaving, setBlockedSaving] = useState(false);
                           required
                         />
                       </label>
-                    </div>
 
-                    <br />
-
-                    <div>
-                      <label>
-                        Start time
-                        <br />
+                      <label className="uf-schedule-field">
+                        <span>Start</span>
 
                         <input
                           type="text"
                           inputMode="numeric"
                           placeholder="HH:MM"
                           maxLength={5}
-                          value={
-                            editingOverrideStart
-                          }
+                          value={editingOverrideStart}
                           onChange={(event) =>
                             setEditingOverrideStart(
                               event.target.value
@@ -965,23 +1011,16 @@ const [blockedSaving, setBlockedSaving] = useState(false);
                           required
                         />
                       </label>
-                    </div>
 
-                    <br />
-
-                    <div>
-                      <label>
-                        End time
-                        <br />
+                      <label className="uf-schedule-field">
+                        <span>End</span>
 
                         <input
                           type="text"
                           inputMode="numeric"
                           placeholder="HH:MM"
                           maxLength={5}
-                          value={
-                            editingOverrideEnd
-                          }
+                          value={editingOverrideEnd}
                           onChange={(event) =>
                             setEditingOverrideEnd(
                               event.target.value
@@ -995,197 +1034,245 @@ const [blockedSaving, setBlockedSaving] = useState(false);
                           required
                         />
                       </label>
-                    </div>
 
-                    <br />
-
-                    <button
-                      type="submit"
-                      disabled={
-                        editingOverrideSaving
-                      }
-                    >
-                      {editingOverrideSaving
-                        ? "Saving..."
-                        : "Save Changes"}
-                    </button>
-
-                    {" "}
-
-                    <button
-                      type="button"
-                      onClick={
-                        cancelEditingOverride
-                      }
-                      disabled={
-                        editingOverrideSaving
-                      }
-                    >
-                      Cancel
-                    </button>
-                  </form>
-                ) : (
-                  <>
-                    <strong>
-                      {item.date}
-                    </strong>{" "}
-                    — {item.startTime} to{" "}
-                    {item.endTime}{" "}
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        startEditingOverride(
-                          item
-                        )
-                      }
-                    >
-                      Edit
-                    </button>
-
-                    {" "}
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDelete(item._id)
-                      }
-                    >
-                      Remove
-                    </button>
-                  </>
-                )}
-              </li>
-            ))}
-        </ul>
-      )}
-
-      <hr />
-
-      {/* =========================
-          CURRENT WEEKLY AVAILABILITY
-      ========================= */}
-
-      <h2>Current Weekly Availability</h2>
-
-      {loading ? (
-        <p>Loading availability...</p>
-      ) : availabilities.filter(
-          (item) => item.type === "weekly"
-        ).length === 0 ? (
-        <p>
-          No weekly availability added yet.
-        </p>
-      ) : (
-        <ul>
-          {availabilities
-            .filter(
-              (item) => item.type === "weekly"
-            )
-            .map((item) => (
-              <li key={item._id}>
-                {editingId === item._id ? (
-                  <form onSubmit={handleUpdate}>
-                    <select
-                      value={editingDay}
-                      onChange={(event) =>
-                        setEditingDay(
-                          Number(
-                            event.target.value
-                          )
-                        )
-                      }
-                    >
-                      {DAYS.map((day) => (
-                        <option
-                          key={day.value}
-                          value={day.value}
+                      <div className="uf-inline-actions">
+                        <button
+                          type="submit"
+                          className="uf-schedule-primary-button"
+                          disabled={
+                            editingOverrideSaving
+                          }
                         >
-                          {day.label}
-                        </option>
-                      ))}
-                    </select>
+                          {editingOverrideSaving
+                            ? "Saving..."
+                            : "Save changes"}
+                        </button>
 
-                    {" "}
+                        <button
+                          type="button"
+                          className="uf-schedule-cancel-button"
+                          onClick={
+                            cancelEditingOverride
+                          }
+                          disabled={
+                            editingOverrideSaving
+                          }
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="uf-availability-date">
+                        <span className="uf-availability-calendar">
+                          ◷
+                        </span>
 
-                    <input
-                      type="time"
-                      value={editingStart}
-                      onChange={(event) =>
-                        setEditingStart(
-                          event.target.value
-                        )
-                      }
-                    />
+                        <div>
+                          <strong>{item.date}</strong>
+                          <span>
+                            {item.startTime} –{" "}
+                            {item.endTime}
+                          </span>
+                        </div>
+                      </div>
 
-                    {" to "}
+                      <div className="uf-inline-actions">
+                        <button
+                          type="button"
+                          className="uf-schedule-edit-button"
+                          onClick={() =>
+                            startEditingOverride(item)
+                          }
+                        >
+                          Edit
+                        </button>
 
-                    <input
-                      type="time"
-                      value={editingEnd}
-                      onChange={(event) =>
-                        setEditingEnd(
-                          event.target.value
-                        )
-                      }
-                    />
+                        <button
+                          type="button"
+                          className="uf-schedule-remove-button"
+                          onClick={() =>
+                            handleDelete(item._id)
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </article>
+              ))}
+          </div>
+        )}
+      </section>
 
-                    {" "}
+      {/* =====================================================
+          CURRENT WEEKLY AVAILABILITY
+      ====================================================== */}
+      <section className="uf-schedule-list-section">
+        <div className="uf-schedule-list-heading">
+          <div>
+            <span className="uf-section-kicker">
+              Recurring hours
+            </span>
 
-                    <button
-                      type="submit"
-                      disabled={editing}
+            <h2>Current weekly availability</h2>
+
+            <p>
+              Your regular weekly booking schedule.
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="uf-schedule-inline-empty">
+            Loading availability...
+          </div>
+        ) : availabilities.filter(
+            (item) => item.type === "weekly"
+          ).length === 0 ? (
+          <div className="uf-schedule-inline-empty">
+            No weekly availability added yet.
+          </div>
+        ) : (
+          <div className="uf-weekly-list">
+            {availabilities
+              .filter(
+                (item) => item.type === "weekly"
+              )
+              .map((item) => (
+                <article
+                  key={item._id}
+                  className="uf-weekly-row"
+                >
+                  {editingId === item._id ? (
+                    <form
+                      className="uf-edit-availability"
+                      onSubmit={handleUpdate}
                     >
-                      {editing
-                        ? "Saving..."
-                        : "Save"}
-                    </button>
+                      <label className="uf-schedule-field">
+                        <span>Day</span>
 
-                    {" "}
+                        <select
+                          value={editingDay}
+                          onChange={(event) =>
+                            setEditingDay(
+                              Number(
+                                event.target.value
+                              )
+                            )
+                          }
+                        >
+                          {DAYS.map((day) => (
+                            <option
+                              key={day.value}
+                              value={day.value}
+                            >
+                              {day.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
 
-                    <button
-                      type="button"
-                      onClick={cancelEditing}
-                      disabled={editing}
-                    >
-                      Cancel
-                    </button>
-                  </form>
-                ) : (
-                  <>
-                    <strong>
-                      {getDayName(
-                        item.dayOfWeek
-                      )}
-                    </strong>{" "}
-                    — {item.startTime} to{" "}
-                    {item.endTime}{" "}
+                      <label className="uf-schedule-field">
+                        <span>Start</span>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        startEditing(item)
-                      }
-                    >
-                      Edit
-                    </button>
+                        <input
+                          type="time"
+                          value={editingStart}
+                          onChange={(event) =>
+                            setEditingStart(
+                              event.target.value
+                            )
+                          }
+                        />
+                      </label>
 
-                    {" "}
+                      <label className="uf-schedule-field">
+                        <span>End</span>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDelete(item._id)
-                      }
-                    >
-                      Remove
-                    </button>
-                  </>
-                )}
-              </li>
-            ))}
-        </ul>
-      )}
+                        <input
+                          type="time"
+                          value={editingEnd}
+                          onChange={(event) =>
+                            setEditingEnd(
+                              event.target.value
+                            )
+                          }
+                        />
+                      </label>
+
+                      <div className="uf-inline-actions">
+                        <button
+                          type="submit"
+                          className="uf-schedule-primary-button"
+                          disabled={editing}
+                        >
+                          {editing
+                            ? "Saving..."
+                            : "Save changes"}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="uf-schedule-cancel-button"
+                          onClick={cancelEditing}
+                          disabled={editing}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="uf-weekly-day">
+                        <span className="uf-weekly-day-icon">
+                          ◷
+                        </span>
+
+                        <div>
+                          <strong>
+                            {getDayName(
+                              item.dayOfWeek
+                            )}
+                          </strong>
+
+                          <span>
+                            {item.startTime} –{" "}
+                            {item.endTime}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="uf-inline-actions">
+                        <button
+                          type="button"
+                          className="uf-schedule-edit-button"
+                          onClick={() =>
+                            startEditing(item)
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          className="uf-schedule-remove-button"
+                          onClick={() =>
+                            handleDelete(item._id)
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </article>
+              ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

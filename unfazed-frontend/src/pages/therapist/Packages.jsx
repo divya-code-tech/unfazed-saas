@@ -235,200 +235,240 @@ function Packages() {
     }
   };
 
-  return (
-    <div>
-      <header>
-        <p>PAYMENTS & PACKAGES</p>
+ return (
+  <div className="uf-page uf-packages-page">
+    <header className="uf-packages-header">
+      <div>
+        <p className="uf-eyebrow">Payments & packages</p>
 
         <h1>Session Packages</h1>
 
-        <p>
-          Create and manage 3, 6, and 12-session packages
-          for your clients.
+        <p className="uf-muted">
+          Create and manage flexible session packages for your clients.
         </p>
-      </header>
+      </div>
 
-      <section style={{ marginTop: "30px" }}>
-        <h2>
-          {isEditing
-            ? "Edit Package"
-            : "Create Package"}
-        </h2>
+      <div className="uf-packages-header-badge">
+        <span>Available options</span>
+        <strong>3 · 6 · 12 sessions</strong>
+      </div>
+    </header>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginTop: "15px" }}>
-            <label htmlFor="package-name">
-              <strong>Package Name</strong>
-            </label>
-            <br />
-            <input
-              id="package-name"
-              name="name"
-              type="text"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="e.g. Stress Support Pack"
-              maxLength={100}
-              required
-              style={{
-                marginTop: "6px",
-                padding: "8px",
-                width: "400px",
-                maxWidth: "100%",
-              }}
-            />
+    {message && (
+      <div className="uf-packages-alert uf-packages-alert-success">
+        {message}
+      </div>
+    )}
+
+    {error && (
+      <div className="uf-packages-alert uf-packages-alert-error">
+        {error}
+      </div>
+    )}
+
+    <section className="uf-packages-workspace">
+      <div className="uf-package-editor uf-surface">
+        <div className="uf-packages-section-heading">
+          <div>
+            <p className="uf-eyebrow">
+              {isEditing ? "Update package" : "New package"}
+            </p>
+
+            <h2>
+              {isEditing
+                ? "Edit Package"
+                : "Create Package"}
+            </h2>
+
+            <p className="uf-muted">
+              Configure the sessions, pricing, and validity your clients will receive.
+            </p>
           </div>
 
-          <div style={{ marginTop: "15px" }}>
-            <label htmlFor="package-description">
-              <strong>Description</strong>
-            </label>
-            <br />
-            <textarea
-              id="package-description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Describe what this package includes..."
-              maxLength={1000}
-              rows="4"
-              style={{
-                marginTop: "6px",
-                padding: "8px",
-                width: "500px",
-                maxWidth: "100%",
-              }}
-            />
-          </div>
+          {isEditing && (
+            <span className="uf-package-edit-badge">
+              Editing
+            </span>
+          )}
+        </div>
 
-          <div style={{ marginTop: "15px" }}>
-            <label htmlFor="package-session-count">
-              <strong>Number of Sessions</strong>
-            </label>
-            <br />
-            <select
-              id="package-session-count"
-              name="sessionCount"
-              value={form.sessionCount}
-              onChange={handleChange}
-              style={{
-                marginTop: "6px",
-                padding: "8px",
-              }}
-            >
-              {SESSION_COUNT_OPTIONS.map((count) => (
-                <option key={count} value={count}>
-                  {count} sessions
-                </option>
-              ))}
-            </select>
-          </div>
+        <form onSubmit={handleSubmit} className="uf-package-form">
+          <div className="uf-package-form-grid">
+            <div className="uf-package-form-full">
+              <label
+                className="uf-label"
+                htmlFor="package-name"
+              >
+                Package Name
+              </label>
 
-          <div style={{ marginTop: "15px" }}>
-            <label htmlFor="package-session-duration">
-              <strong>Session Duration</strong>
-            </label>
-            <br />
-            <select
-              id="package-session-duration"
-              name="sessionDuration"
-              value={form.sessionDuration}
-              onChange={handleChange}
-              style={{
-                marginTop: "6px",
-                padding: "8px",
-              }}
-            >
-              {SESSION_DURATION_OPTIONS.map(
-                (duration) => (
-                  <option
-                    key={duration}
-                    value={duration}
-                  >
-                    {duration} minutes
-                  </option>
-                )
-              )}
-            </select>
-          </div>
-
-          <div style={{ marginTop: "15px" }}>
-            <label htmlFor="package-price">
-              <strong>Total Package Price (₹)</strong>
-            </label>
-            <br />
-            <input
-              id="package-price"
-              name="price"
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="Enter package price"
-              required
-              style={{
-                marginTop: "6px",
-                padding: "8px",
-                width: "200px",
-              }}
-            />
-
-            {perSessionRate !== null && (
-              <p style={{ marginTop: "8px" }}>
-                Per-session rate:{" "}
-                <strong>
-                  ₹
-                  {perSessionRate.toLocaleString(
-                    "en-IN",
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
-                </strong>
-              </p>
-            )}
-          </div>
-
-          <div style={{ marginTop: "15px" }}>
-            <label htmlFor="package-validity">
-              <strong>Validity (days)</strong>
-            </label>
-            <br />
-            <input
-              id="package-validity"
-              name="validityDays"
-              type="number"
-              min="1"
-              step="1"
-              value={form.validityDays}
-              onChange={handleChange}
-              placeholder="e.g. 90"
-              required
-              style={{
-                marginTop: "6px",
-                padding: "8px",
-                width: "200px",
-              }}
-            />
-          </div>
-
-          <div style={{ marginTop: "15px" }}>
-            <label>
               <input
-                type="checkbox"
-                name="isActive"
-                checked={form.isActive}
+                className="uf-input"
+                id="package-name"
+                name="name"
+                type="text"
+                value={form.name}
                 onChange={handleChange}
-              />{" "}
-              Package is active
-            </label>
+                placeholder="e.g. Stress Support Pack"
+                maxLength={100}
+                required
+              />
+            </div>
+
+            <div className="uf-package-form-full">
+              <label
+                className="uf-label"
+                htmlFor="package-description"
+              >
+                Description
+              </label>
+
+              <textarea
+                className="uf-textarea"
+                id="package-description"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Describe what this package includes..."
+                maxLength={1000}
+                rows="4"
+              />
+            </div>
+
+            <div>
+              <label
+                className="uf-label"
+                htmlFor="package-session-count"
+              >
+                Number of Sessions
+              </label>
+
+              <select
+                className="uf-input"
+                id="package-session-count"
+                name="sessionCount"
+                value={form.sessionCount}
+                onChange={handleChange}
+              >
+                {SESSION_COUNT_OPTIONS.map((count) => (
+                  <option key={count} value={count}>
+                    {count} sessions
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                className="uf-label"
+                htmlFor="package-session-duration"
+              >
+                Session Duration
+              </label>
+
+              <select
+                className="uf-input"
+                id="package-session-duration"
+                name="sessionDuration"
+                value={form.sessionDuration}
+                onChange={handleChange}
+              >
+                {SESSION_DURATION_OPTIONS.map(
+                  (duration) => (
+                    <option
+                      key={duration}
+                      value={duration}
+                    >
+                      {duration} minutes
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
+
+            <div>
+              <label
+                className="uf-label"
+                htmlFor="package-price"
+              >
+                Total Package Price (₹)
+              </label>
+
+              <input
+                className="uf-input"
+                id="package-price"
+                name="price"
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={form.price}
+                onChange={handleChange}
+                placeholder="Enter package price"
+                required
+              />
+
+              {perSessionRate !== null && (
+                <p className="uf-package-helper">
+                  Per-session rate:{" "}
+                  <strong>
+                    ₹
+                    {perSessionRate.toLocaleString(
+                      "en-IN",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </strong>
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                className="uf-label"
+                htmlFor="package-validity"
+              >
+                Validity (days)
+              </label>
+
+              <input
+                className="uf-input"
+                id="package-validity"
+                name="validityDays"
+                type="number"
+                min="1"
+                step="1"
+                value={form.validityDays}
+                onChange={handleChange}
+                placeholder="e.g. 90"
+                required
+              />
+            </div>
+
+            <div className="uf-package-form-full">
+              <label className="uf-package-checkbox">
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  checked={form.isActive}
+                  onChange={handleChange}
+                />
+
+                <span>
+                  <strong>Package is active</strong>
+                  <small>
+                    Clients can currently use this package.
+                  </small>
+                </span>
+              </label>
+            </div>
           </div>
 
-          <div style={{ marginTop: "20px" }}>
+          <div className="uf-package-form-actions">
             <button
               type="submit"
+              className="uf-button uf-button-primary"
               disabled={saving}
             >
               {saving
@@ -441,137 +481,197 @@ function Packages() {
             {isEditing && (
               <button
                 type="button"
+                className="uf-button uf-button-secondary"
                 onClick={resetForm}
                 disabled={saving}
-                style={{ marginLeft: "10px" }}
               >
                 Cancel Edit
               </button>
             )}
           </div>
         </form>
+      </div>
 
-        {message && (
-          <p style={{ marginTop: "15px" }}>
-            {message}
-          </p>
-        )}
+      <aside className="uf-package-guidance">
+        <div className="uf-package-guidance-card">
+          <span className="uf-package-guidance-icon">✦</span>
 
-        {error && (
-          <p style={{ marginTop: "15px" }}>
-            {error}
-          </p>
-        )}
-      </section>
+          <p className="uf-eyebrow">Package setup</p>
 
-      <hr style={{ margin: "35px 0" }} />
+          <h3>Build a clear offer for clients</h3>
 
-      <section>
-        <h2>Your Packages</h2>
-
-        {loading ? (
-          <p>Loading packages...</p>
-        ) : packages.length === 0 ? (
           <p>
-            No packages created yet. Create your first
-            package above.
+            Combine a session count, duration, package price,
+            and validity period into one easy-to-understand option.
           </p>
-        ) : (
-          <div>
-            {packages.map((packageData) => {
-              const packagePerSessionRate =
-                Number(packageData.price) /
-                Number(packageData.sessionCount);
 
-              return (
-                <article
-                  key={packageData._id}
-                  style={{
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "10px",
-                    padding: "18px",
-                    marginTop: "15px",
-                    maxWidth: "650px",
-                  }}
-                >
-                  <h3>{packageData.name}</h3>
+          <div className="uf-package-guidance-items">
+            <div>
+              <strong>3 / 6 / 12</strong>
+              <span>Session options</span>
+            </div>
 
-                  {packageData.description && (
-                    <p>{packageData.description}</p>
-                  )}
+            <div>
+              <strong>30–90 min</strong>
+              <span>Session duration</span>
+            </div>
 
-                  <p>
-                    <strong>Sessions:</strong>{" "}
-                    {packageData.sessionCount}
+            <div>
+              <strong>Flexible</strong>
+              <span>Validity period</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section className="uf-packages-library">
+      <div className="uf-packages-section-heading">
+        <div>
+          <p className="uf-eyebrow">Package library</p>
+
+          <h2>Your Packages</h2>
+
+          <p className="uf-muted">
+            Review, edit, and manage the packages currently available in your practice.
+          </p>
+        </div>
+
+        <span className="uf-packages-count">
+          {packages.length}{" "}
+          {packages.length === 1 ? "package" : "packages"}
+        </span>
+      </div>
+
+      {loading ? (
+        <div className="uf-package-empty">
+          <h3>Loading packages...</h3>
+          <p>Please wait while your package library loads.</p>
+        </div>
+      ) : packages.length === 0 ? (
+        <div className="uf-package-empty">
+          <div className="uf-package-empty-icon">＋</div>
+
+          <h3>No packages created yet</h3>
+
+          <p>
+            Create your first session package above to make
+            packaged sessions available to your clients.
+          </p>
+        </div>
+      ) : (
+        <div className="uf-package-grid">
+          {packages.map((packageData) => {
+            const packagePerSessionRate =
+              Number(packageData.price) /
+              Number(packageData.sessionCount);
+
+            return (
+              <article
+                key={packageData._id}
+                className="uf-package-card"
+              >
+                <div className="uf-package-card-top">
+                  <div>
+                    <span className="uf-package-session-badge">
+                      {packageData.sessionCount} sessions
+                    </span>
+
+                    <h3>{packageData.name}</h3>
+                  </div>
+
+                  <span
+                    className={`uf-package-status ${
+                      packageData.isActive
+                        ? "active"
+                        : "inactive"
+                    }`}
+                  >
+                    {packageData.isActive
+                      ? "Active"
+                      : "Inactive"}
+                  </span>
+                </div>
+
+                {packageData.description && (
+                  <p className="uf-package-description">
+                    {packageData.description}
                   </p>
+                )}
 
-                  <p>
-                    <strong>Duration:</strong>{" "}
-                    {packageData.sessionDuration} minutes
-                  </p>
+                <div className="uf-package-price">
+                  <span>Total package price</span>
 
-                  <p>
-                    <strong>Total Price:</strong> ₹
+                  <strong>
+                    ₹
                     {Number(
                       packageData.price
                     ).toLocaleString("en-IN", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
-                  </p>
+                  </strong>
+                </div>
 
-                  <p>
-                    <strong>Per-session rate:</strong>{" "}
-                    ₹
-                    {packagePerSessionRate.toLocaleString(
-                      "en-IN",
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
-                    )}
-                  </p>
-
-                  <p>
-                    <strong>Validity:</strong>{" "}
-                    {packageData.validityDays} days
-                  </p>
-
-                  <p>
-                    <strong>Status:</strong>{" "}
-                    {packageData.isActive
-                      ? "Active"
-                      : "Inactive"}
-                  </p>
-
-                  <div style={{ marginTop: "15px" }}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleEdit(packageData)
-                      }
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleDelete(packageData)
-                      }
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Delete
-                    </button>
+                <div className="uf-package-details">
+                  <div>
+                    <span>Per-session rate</span>
+                    <strong>
+                      ₹
+                      {packagePerSessionRate.toLocaleString(
+                        "en-IN",
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}
+                    </strong>
                   </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
-    </div>
-  );
+
+                  <div>
+                    <span>Duration</span>
+                    <strong>
+                      {packageData.sessionDuration} min
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Validity</span>
+                    <strong>
+                      {packageData.validityDays} days
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="uf-package-card-actions">
+                  <button
+                    type="button"
+                    className="uf-button uf-button-secondary"
+                    onClick={() =>
+                      handleEdit(packageData)
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className="uf-package-button-delete"
+                    onClick={() =>
+                      handleDelete(packageData)
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  </div>
+);
 }
 
 export default Packages;

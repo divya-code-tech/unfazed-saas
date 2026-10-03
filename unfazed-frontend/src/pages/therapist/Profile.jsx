@@ -148,35 +148,64 @@ function Profile() {
   }
 
   return (
-    <section className="uf-profile-editor">
-      <div className="uf-profile-editor-header">
-        <div>
-          <span className="uf-eyebrow">Therapist profile</span>
-          <h1>Profile settings</h1>
-          <p>
-            Manage the information clients see on your public profile and
-            configure your session details.
-          </p>
-        </div>
+  <section className="uf-page uf-profile-page">
+    <header className="uf-profile-header">
+      <div className="uf-profile-header-copy">
+        <span className="uf-eyebrow">Therapist profile</span>
+
+        <h1>Profile settings</h1>
+
+        <p>
+          Manage the information clients see and configure how your
+          sessions are presented.
+        </p>
       </div>
 
-      <form
-        className="uf-surface uf-profile-form"
-        onSubmit={handleSubmit}
-      >
-        <div className="uf-profile-form-section">
-          <div>
-            <h2>Basic information</h2>
-            <p>
-              This information is used across your therapist profile.
-            </p>
+      <div className="uf-profile-identity">
+        <div className="uf-profile-identity-avatar">
+          {form.name?.charAt(0)?.toUpperCase() || "T"}
+        </div>
+
+        <div className="uf-profile-identity-copy">
+          <strong>{form.name || "Your profile"}</strong>
+          <span>Professional profile</span>
+        </div>
+      </div>
+    </header>
+
+    <form onSubmit={handleSubmit} className="uf-profile-workspace">
+
+      <div className="uf-profile-content">
+
+        {/* =========================
+            BASIC INFORMATION
+            ========================= */}
+
+        <section className="uf-surface uf-profile-card">
+
+          <div className="uf-profile-card-header">
+            <div>
+              <span className="uf-profile-card-kicker">
+                Personal details
+              </span>
+
+              <h2>Basic information</h2>
+
+              <p>
+                Keep the information clients use to understand who you are.
+              </p>
+            </div>
+
+            <span className="uf-profile-card-index">01</span>
           </div>
 
-          <div className="uf-profile-form-grid">
-            <div>
+          <div className="uf-profile-fields">
+
+            <div className="uf-profile-field">
               <label className="uf-label" htmlFor="name">
                 Full name
               </label>
+
               <input
                 className="uf-input"
                 id="name"
@@ -186,10 +215,11 @@ function Profile() {
               />
             </div>
 
-            <div>
+            <div className="uf-profile-field">
               <label className="uf-label" htmlFor="email">
                 Professional email
               </label>
+
               <input
                 className="uf-input"
                 id="email"
@@ -198,10 +228,11 @@ function Profile() {
               />
             </div>
 
-            <div>
+            <div className="uf-profile-field">
               <label className="uf-label" htmlFor="phone">
                 Phone
               </label>
+
               <input
                 className="uf-input"
                 id="phone"
@@ -211,10 +242,11 @@ function Profile() {
               />
             </div>
 
-            <div>
+            <div className="uf-profile-field">
               <label className="uf-label" htmlFor="timezone">
                 Timezone
               </label>
+
               <input
                 className="uf-input"
                 id="timezone"
@@ -224,10 +256,11 @@ function Profile() {
               />
             </div>
 
-            <div className="uf-profile-form-full">
+            <div className="uf-profile-field uf-profile-field-wide">
               <label className="uf-label" htmlFor="bio">
-                About
+                About you
               </label>
+
               <textarea
                 className="uf-textarea"
                 id="bio"
@@ -237,12 +270,18 @@ function Profile() {
                 onChange={handleChange}
                 placeholder="Tell clients about your approach and the support you provide."
               />
+
+              <span className="uf-profile-helper">
+                A short introduction helps clients understand your approach
+                before booking a session.
+              </span>
             </div>
 
-            <div>
+            <div className="uf-profile-field">
               <label className="uf-label" htmlFor="languages">
                 Languages
               </label>
+
               <input
                 className="uf-input"
                 id="languages"
@@ -253,10 +292,11 @@ function Profile() {
               />
             </div>
 
-            <div>
+            <div className="uf-profile-field">
               <label className="uf-label" htmlFor="specializations">
                 Areas of focus
               </label>
+
               <input
                 className="uf-input"
                 id="specializations"
@@ -266,98 +306,254 @@ function Profile() {
                 placeholder="Anxiety, Stress Management"
               />
             </div>
+
           </div>
-        </div>
+        </section>
 
-        <hr className="uf-divider" />
 
-        <div className="uf-profile-form-section">
-          <div>
-            <h2>Session settings</h2>
-            <p>
-              These settings are used when presenting your available service.
-            </p>
-          </div>
+        {/* =========================
+            SESSION SETTINGS
+            ========================= */}
 
-          <div className="uf-profile-form-grid">
+        <section className="uf-surface uf-profile-card">
+
+          <div className="uf-profile-card-header">
             <div>
-              <label className="uf-label" htmlFor="sessionDuration">
-                Session duration
-              </label>
-              <select
-                className="uf-input"
-                id="sessionDuration"
-                name="sessionDuration"
-                value={form.sessionDuration}
-                onChange={handleChange}
-              >
-                <option value="30">30 minutes</option>
-                <option value="45">45 minutes</option>
-                <option value="60">60 minutes</option>
-                <option value="90">90 minutes</option>
-              </select>
+              <span className="uf-profile-card-kicker">
+                Practice preferences
+              </span>
+
+              <h2>Session settings</h2>
+
+              <p>
+                Configure the structure and pricing used for your sessions.
+              </p>
             </div>
 
+            <span className="uf-profile-card-index">02</span>
+          </div>
+
+          <div className="uf-profile-settings">
+
+            <div className="uf-profile-setting">
+              <div className="uf-profile-setting-icon">
+                ◷
+              </div>
+
+              <div className="uf-profile-setting-body">
+                <span className="uf-profile-setting-label">
+                  Session duration
+                </span>
+
+                <select
+                  className="uf-input"
+                  id="sessionDuration"
+                  name="sessionDuration"
+                  value={form.sessionDuration}
+                  onChange={handleChange}
+                >
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                  <option value="90">90 minutes</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="uf-profile-setting">
+              <div className="uf-profile-setting-icon">
+                +
+              </div>
+
+              <div className="uf-profile-setting-body">
+                <span className="uf-profile-setting-label">
+                  Buffer time
+                </span>
+
+                <input
+                  className="uf-input"
+                  id="bufferTime"
+                  name="bufferTime"
+                  type="number"
+                  min="0"
+                  value={form.bufferTime}
+                  onChange={handleChange}
+                />
+
+                <span className="uf-profile-setting-hint">
+                  Minutes between sessions
+                </span>
+              </div>
+            </div>
+
+            <div className="uf-profile-setting">
+              <div className="uf-profile-setting-icon">
+                ₹
+              </div>
+
+              <div className="uf-profile-setting-body">
+                <span className="uf-profile-setting-label">
+                  Session fee
+                </span>
+
+                <input
+                  className="uf-input"
+                  id="sessionPrice"
+                  name="sessionPrice"
+                  type="number"
+                  min="0"
+                  value={form.sessionPrice}
+                  onChange={handleChange}
+                />
+
+                <span className="uf-profile-setting-hint">
+                  Standard fee per session
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+
+        {/* =========================
+            PUBLIC PROFILE
+            ========================= */}
+
+        <section className="uf-surface uf-profile-card">
+
+          <div className="uf-profile-card-header">
             <div>
-              <label className="uf-label" htmlFor="bufferTime">
-                Buffer time
+              <span className="uf-profile-card-kicker">
+                Client-facing details
+              </span>
+
+              <h2>Public profile</h2>
+
+              <p>
+                Choose the address clients can use to view your profile.
+              </p>
+            </div>
+
+            <span className="uf-profile-card-index">03</span>
+          </div>
+
+          <div className="uf-profile-public-box">
+
+            <div className="uf-profile-public-icon">
+              ↗
+            </div>
+
+            <div className="uf-profile-public-content">
+
+              <div className="uf-profile-public-heading">
+                <div>
+                  <strong>Your profile link</strong>
+
+                  <span>
+                    This is the public address clients can use.
+                  </span>
+                </div>
+              </div>
+
+              <label className="uf-label" htmlFor="slug">
+                Profile slug
               </label>
+
               <input
                 className="uf-input"
-                id="bufferTime"
-                name="bufferTime"
-                type="number"
-                min="0"
-                value={form.bufferTime}
+                id="slug"
+                name="slug"
+                value={form.slug}
                 onChange={handleChange}
               />
+
+              <div className="uf-profile-url">
+                unfazed.in/
+                <strong>{form.slug || "your-profile"}</strong>
+              </div>
+
             </div>
 
-            <div>
-              <label className="uf-label" htmlFor="sessionPrice">
-                Session fee (₹)
-              </label>
-              <input
-                className="uf-input"
-                id="sessionPrice"
-                name="sessionPrice"
-                type="number"
-                min="0"
-                value={form.sessionPrice}
-                onChange={handleChange}
-              />
-            </div>
           </div>
-        </div>
+        </section>
 
-        <hr className="uf-divider" />
+      </div>
 
-        <div className="uf-profile-form-section">
-          <div>
-            <h2>Public profile link</h2>
+
+      {/* =========================
+          PROFILE SIDEBAR
+          ========================= */}
+
+      <aside className="uf-profile-sidebar">
+
+        <section className="uf-surface uf-profile-overview">
+
+          <span className="uf-profile-overview-label">
+            Profile overview
+          </span>
+
+          <div className="uf-profile-overview-avatar">
+            {form.name?.charAt(0)?.toUpperCase() || "T"}
+          </div>
+
+          <h2>
+            {form.name || "Your profile"}
+          </h2>
+
+          <p>
+            {form.specializations || "Add your areas of focus"}
+          </p>
+
+          <div className="uf-profile-overview-divider" />
+
+          <div className="uf-profile-overview-stat">
+            <span>Email</span>
+            <strong>{form.email || "Not available"}</strong>
+          </div>
+
+          <div className="uf-profile-overview-stat">
+            <span>Duration</span>
+            <strong>{form.sessionDuration} min</strong>
+          </div>
+
+          <div className="uf-profile-overview-stat">
+            <span>Session fee</span>
+            <strong>
+              ₹
+              {Number(form.sessionPrice || 0).toLocaleString("en-IN")}
+            </strong>
+          </div>
+
+        </section>
+
+
+        <section className="uf-profile-save">
+
+          <div className="uf-profile-save-icon">
+            ✓
+          </div>
+
+          <div className="uf-profile-save-content">
+            <span>Profile changes</span>
+
+            <h3>Ready to save?</h3>
+
             <p>
-              This is the link clients can use to view your profile.
+              Update your profile when you're happy with the changes.
             </p>
           </div>
 
-          <div>
-            <label className="uf-label" htmlFor="slug">
-              Profile slug
-            </label>
+          <button
+            type="submit"
+            className="uf-button uf-button-primary"
+            disabled={saving}
+          >
+            {saving ? "Saving changes..." : "Save profile"}
+          </button>
 
-            <input
-              className="uf-input"
-              id="slug"
-              name="slug"
-              value={form.slug}
-              onChange={handleChange}
-            />
+        </section>
 
-            <p className="uf-profile-slug-preview">
-              unfazed.in/{form.slug || "your-profile"}
-            </p>
-          </div>
-        </div>
 
         {error && (
           <div className="auth-error" role="alert">
@@ -371,18 +567,11 @@ function Profile() {
           </div>
         )}
 
-        <div className="uf-profile-form-actions">
-          <button
-            type="submit"
-            className="uf-button uf-button-primary"
-            disabled={saving}
-          >
-            {saving ? "Saving changes..." : "Save profile"}
-          </button>
-        </div>
-      </form>
-    </section>
-  );
+      </aside>
+
+    </form>
+  </section>
+);
 }
 
 export default Profile;
