@@ -245,7 +245,7 @@ const loadMyPackages = async () => {
         {
           params: {
             date,
-            timezone: "Asia/Kolkata",
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           },
           headers: {
             Authorization: `Bearer ${token}`,
