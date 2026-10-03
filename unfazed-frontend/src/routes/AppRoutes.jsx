@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
-import Home from "../pages/Home";
+
 
 import Dashboard from "../pages/therapist/Dashboard";
 import Clients from "../pages/therapist/Clients";
@@ -30,7 +30,7 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public pages */}
-      <Route path="/" element={<Home />} />
+       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
            
