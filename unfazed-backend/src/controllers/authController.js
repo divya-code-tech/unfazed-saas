@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Therapist from "../models/Therapist.js";
 import Client from "../models/Client.js";
+import mongoose from "mongoose";
 
 const generateToken = (userId, role) => {
   return jwt.sign(
@@ -97,11 +98,10 @@ export const loginTherapist = async (req, res, next) => {
     console.log("[LOGIN DEBUG]", {
       email: email.toLowerCase(),
       found: Boolean(therapist),
-      hasPassword: Boolean(therapist?.password),
-      passwordLength: therapist?.password?.length,
-      passwordPrefix: therapist?.password?.slice(0, 4),
+      database: mongoose.connection.name,
+      host: mongoose.connection.host,
     });
-
+    
     if (!therapist) {
       return res.status(401).json({
         success: false,
