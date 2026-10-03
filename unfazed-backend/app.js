@@ -16,6 +16,7 @@ import analyticsRoutes from "./src/routes/analyticsRoutes.js";
 import clientPortalRoutes from "./src/routes/clientPortalRoutes.js";
 import clientBookingRoutes from "./src/routes/clientBookingRoutes.js";
 import therapistRoutes from "./src/routes/therapistRoutes.js";
+import subscriptionRoutes from "./src/routes/subscriptionRoutes.js";
 
 
 dotenv.config();
@@ -70,6 +71,7 @@ app.use("/api/client-packages", clientPackageRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/subscription", subscriptionRoutes);
 
 
 app.use(errorHandler);
