@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Therapist from "../models/Therapist.js";
 import Client from "../models/Client.js";
-import mongoose from "mongoose";
 
 const generateToken = (userId, role) => {
   return jwt.sign(
@@ -95,18 +94,6 @@ export const loginTherapist = async (req, res, next) => {
       email: email.toLowerCase(),
     }).select("+password");
    
-    
-  const therapistCount = await mongoose.connection.db
-   .collection("therapists")
-   .countDocuments();
-
-console.log("[LOGIN DEBUG]", {
-  email: email.toLowerCase(),
-  found: Boolean(therapist),
-  database: mongoose.connection.name,
-  host: mongoose.connection.host,
-  therapistCount,
-});
 
 if (!therapist) {
   return res.status(401).json({
