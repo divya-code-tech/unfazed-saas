@@ -27,7 +27,7 @@ const startServer = async () => {
 
     startNotificationScheduler();
 
-    server.listen(PORT, () => {
+        server.listen(PORT, "0.0.0.0", () => {
       console.log(`Unfazed API running on port ${PORT}`);
     });
   } catch (error) {
