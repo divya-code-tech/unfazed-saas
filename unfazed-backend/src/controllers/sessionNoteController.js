@@ -3,7 +3,13 @@ import Session from "../models/Session.js";
 
 export const createSessionNote = async (req, res, next) => {
   try {
-    const { sessionId, content, isClientVisible, attachments } = req.body;
+    const {
+      sessionId,
+      content,
+      type,
+      isClientVisible,
+      attachments,
+    } = req.body;
 
     if (!sessionId || !content) {
       return res.status(400).json({
@@ -24,12 +30,26 @@ export const createSessionNote = async (req, res, next) => {
       });
     }
 
+    // Support the new PDF-compliant `type` field.
+    // Keep temporary compatibility with the existing frontend
+    // that still sends `isClientVisible`.
+    const noteType =
+      type ??
+      (isClientVisible === true ? "shared" : "private");
+
+    if (!["private", "shared"].includes(noteType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Note type must be either private or shared",
+      });
+    }
+
     const note = await SessionNote.create({
       session: session._id,
       therapist: session.therapist,
       client: session.client,
       content,
-      isClientVisible: isClientVisible ?? false,
+      type: noteType,
       attachments: attachments ?? [],
     });
 
@@ -84,10 +104,16 @@ export const getSessionNotes = async (req, res, next) => {
 
 export const updateSessionNote = async (req, res, next) => {
   try {
-    const { content, isClientVisible, attachments } = req.body;
+    const {
+      content,
+      type,
+      isClientVisible,
+      attachments,
+    } = req.body;
 
     if (
       content === undefined &&
+      type === undefined &&
       isClientVisible === undefined &&
       attachments === undefined
     ) {
@@ -120,8 +146,19 @@ export const updateSessionNote = async (req, res, next) => {
       note.content = content;
     }
 
-    if (isClientVisible !== undefined) {
-      note.isClientVisible = isClientVisible;
+    // Prefer the new PDF-compliant `type` field.
+    // Keep temporary compatibility with the existing frontend.
+    if (type !== undefined) {
+      if (!["private", "shared"].includes(type)) {
+        return res.status(400).json({
+          success: false,
+          message: "Note type must be either private or shared",
+        });
+      }
+
+      note.type = type;
+    } else if (isClientVisible !== undefined) {
+      note.type = isClientVisible === true ? "shared" : "private";
     }
 
     if (attachments !== undefined) {

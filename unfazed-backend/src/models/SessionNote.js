@@ -27,10 +27,11 @@ const sessionNoteSchema = new mongoose.Schema(
       maxlength: 10000,
     },
 
-    isClientVisible: {
-      type: Boolean,
-      default: false,
-    },
+   type: {
+     type: String,
+     enum: ["private", "shared"],
+     default: "private",
+   },
 
     attachments: [
       {

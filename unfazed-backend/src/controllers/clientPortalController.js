@@ -168,12 +168,11 @@ export const getMySessionNotes = async (req, res, next) => {
         message: "Session not found",
       });
     }
-
     const notes = await SessionNote.find({
       session: session._id,
       client: req.user.id,
-      isClientVisible: true,
-    })
+      type: "shared",
+ })
       .populate("session", "startTime endTime status")
       .sort({ createdAt: -1 });
 
